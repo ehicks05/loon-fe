@@ -21,7 +21,7 @@ export default function Routes() {
   const isAdmin = userContext.user.admin;
 
   return (
-    <div>
+    <>
       <Route exact path="/" render={() => <Redirect to="/search" />} />
       <AdminRoute
         exact
@@ -86,7 +86,7 @@ export default function Routes() {
           render={(props) => <Playlist {...props} />}
         />
       </Switch>
-    </div>
+    </>
   );
 }
 

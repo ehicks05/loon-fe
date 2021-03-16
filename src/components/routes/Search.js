@@ -11,7 +11,6 @@ import { FaSearch } from "react-icons/fa";
 import { AppContext } from "../../common/AppContextProvider";
 import { UserContext } from "../../common/UserContextProvider";
 import useDebounce from "../../hooks/UseDebounce";
-import useWindowSize from "../../hooks/useWindowSize";
 
 export default function Search() {
   const [searchResults, setSearchResults] = useState([]);
@@ -19,8 +18,6 @@ export default function Search() {
 
   const appContext = useContext(AppContext);
   const userContext = useContext(UserContext);
-  const windowSize = useWindowSize();
-  const windowSizeDebounced = useDebounce(windowSize, 250);
 
   const cache = useRef(
     new CellMeasurerCache({ fixedWidth: true, defaultHeight: 58 })
@@ -33,13 +30,7 @@ export default function Search() {
     return function cleanup() {
       userContext.setSelectedContextMenuId(null);
     };
-  }, []);
-
-  useEffect(() => {
-    cache.current.clearAll();
-    listRef.current.recomputeRowHeights();
-    listRef.current.forceUpdateGrid();
-  }, [windowSizeDebounced.width]);
+  }, [userContext]);
 
   useEffect(() => {
     const key = debouncedSearchKey.toLowerCase();
@@ -102,7 +93,7 @@ export default function Search() {
           flexDirection: "column",
           height: "100%",
           flex: "1",
-          flexGrow: "1",
+          flexGrow: 1,
         }}
       >
         <AutoSizer style={{ outline: 0 }}>

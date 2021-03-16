@@ -5,6 +5,8 @@ import { UserContextProvider } from "./common/UserContextProvider";
 import { AppContextProvider } from "./common/AppContextProvider";
 import { VolumeContextProvider } from "./common/VolumeContextProvider";
 import { TimeContextProvider } from "./common/TimeContextProvider";
+import "index.css";
+import "bulma-prefers-dark.css";
 
 ReactDOM.render(
   <UserContextProvider>
