@@ -5,7 +5,7 @@ import "bulma/css/bulma.min.css";
 
 import Header from "./Header";
 import MyHelmet from "./MyHelmet";
-import Player from "./components/player/Player";
+import Player from "./components/app/Player/Player";
 import Routes from "./Routes";
 import { UserContext } from "./common/UserContextProvider";
 import { AppContext } from "./common/AppContextProvider";
@@ -44,6 +44,24 @@ export default function App() {
     setColumnHeight(columnHeight);
     console.log(columnHeight);
   }, [width, height]);
+
+  useEffect(() => {
+    function getSelectedTrack() {
+      const ready =
+        userContext.user?.userState?.selectedTrackId &&
+        appContext.tracks &&
+        typeof appContext.tracks === "object";
+      return ready
+        ? appContext.getTrackById(userContext.user.userState.selectedTrackId)
+        : null;
+    }
+
+    const selectedTrack = getSelectedTrack();
+    const title = selectedTrack
+      ? selectedTrack.title + " by " + selectedTrack.artist
+      : "Loon";
+    window.document.title = title;
+  }, [appContext, userContext.user?.userState?.selectedTrackId]);
 
   if (!userContext.user) return <LoginForm />;
 

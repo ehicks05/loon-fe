@@ -1,83 +1,58 @@
-import React, {useContext} from 'react';
-import { Helmet } from 'react-helmet';
-import {UserContext} from "./common/UserContextProvider";
-import {AppContext} from "./common/AppContextProvider";
+import React from "react";
+import { Helmet } from "react-helmet";
 
 export default function MyHelmet() {
-    const userContext = useContext(UserContext);
-    const appContext = useContext(AppContext);
+  return (
+    <Helmet defer={false}>
+      <style>
+        {`
+            html {overflow: auto;}
 
-    function getSelectedTrack() {
-        const ready = userContext.user && appContext.tracks && typeof appContext.tracks === 'object';
-        return ready ? appContext.getTrackById(userContext.user.userState.selectedTrackId) : null;
-    }
+            #level {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+            }
+            
+            .columns {margin-bottom: 0 !important;}
+            
+            section {padding: 10px !important;}
+            
+            .playingHighlight {color: #23d160;}
+            .playingHighlight:focus {outline:0;}
+            
+            .playlist {overflow-y: auto; }
+            
+            .media+.media {padding-top:.2rem;margin-top:.2rem;}
+            
+            .mediaItemDiv {padding: 5px; vertical-align: middle; display: flex; flex-direction: row; justify-content: space-between;
+                transition: all .2s ease}
+            
+            .mediaItemDiv       .mediaItemEllipsis .dropdown{visibility: hidden;}
+            .mediaItemDiv:hover .mediaItemEllipsis .dropdown{visibility: visible;}
+            .mediaItemEllipsis {margin-right: 8px; flex-basis: 20px;}
+            .is-visible-important {visibility: visible !important;}
+            
+            .list-song {flex: 8}
+            .mediaItemCounter {text-align: right; margin-right: 5px; min-width: 30px; flex-basis: 36px;}
+            
+            .ReactVirtualized__List:focus{outline: none;}
+            
+            .panel-block:last-child {border-radius: 0;}
+            
+            /* Fix issue where the last track in a list would have its action-menu cut off */
+            .ReactVirtualized__Grid__innerScrollContainer {overflow: visible !important;}
 
-    const selectedTrack = getSelectedTrack();
-    const title = selectedTrack ? selectedTrack.title + ' by ' + selectedTrack.artist : 'Loon';
-    const transparentPixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+            /* SCROLLBAR */
+            ::-webkit-scrollbar {width: 8px;}
+            ::-webkit-scrollbar-thumb {background: #777;}
+            ::-webkit-scrollbar-thumb:hover {background: #888;}
+            `}
+      </style>
 
-    return (
-        <Helmet defer={false}>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>{title}</title>
-            <link rel="stylesheet" href="/styles/bulma-prefers-dark.min.css" />
-            <link rel="shortcut icon" href={"/images/loon2.png"} />
-
-            <style>
-                {
-                    `
-                        html {overflow: auto;}
-
-                        #level {
-                            position: fixed;
-                            bottom: 0;
-                            width: 100%;
-                        }
-                        
-                        .columns {margin-bottom: 0 !important;}
-                        
-                        section {padding: 10px !important;}
-                        
-                        .playingHighlight {color: #23d160;}
-                        .playingHighlight:focus {outline:0;}
-                        
-                        .playlist {overflow-y: auto; }
-                        
-                        .media+.media {padding-top:.2rem;margin-top:.2rem;}
-                        
-                        .mediaItemDiv {padding: 5px; vertical-align: middle; display: flex; flex-direction: row; justify-content: space-between;
-                            transition: all .2s ease}
-                        
-                        .mediaItemDiv       .mediaItemEllipsis .dropdown{visibility: hidden;}
-                        .mediaItemDiv:hover .mediaItemEllipsis .dropdown{visibility: visible;}
-                        .mediaItemEllipsis {margin-right: 8px; flex-basis: 20px;}
-                        .is-visible-important {visibility: visible !important;}
-                        
-                        .list-song {flex: 8}
-                        .mediaItemCounter {text-align: right; margin-right: 5px; min-width: 30px; flex-basis: 36px;}
-                        
-                        .ReactVirtualized__List:focus{outline: none;}
-                        
-                        .panel-block:last-child {border-radius: 0;}
-                        
-                        /* Fix issue where the last track in a list would have its action-menu cut off */
-                        .ReactVirtualized__Grid__innerScrollContainer {overflow: visible !important;}
-
-                        /* SCROLLBAR */
-                        ::-webkit-scrollbar {width: 8px;}
-                        ::-webkit-scrollbar-track-piece:start {background: transparent url(${transparentPixel}) repeat-y !important;}
-                        ::-webkit-scrollbar-track-piece:end {background: url(${transparentPixel}) repeat-y !important;}
-                        ::-webkit-scrollbar-thumb {background: #777;}
-                        ::-webkit-scrollbar-thumb:hover {background: #888;}
-                        `
-                }
-            </style>
-
-            {/* prefers-color-scheme styles */}
-            <style>
-                {
-                    `                        
+      {/* prefers-color-scheme styles */}
+      <style>
+        {`                        
                          .myLevel {color: #4a4a4a; background-color: #f4f4f4;}
                          #left-column {background-color: #f4f4f4;}
                          .mediaItemDiv:hover {background-color: #f4f4f4;}
@@ -126,9 +101,8 @@ export default function MyHelmet() {
                              .panel-block:not(:last-child), .panel-tabs:not(:last-child) {border-bottom: none !important;}
                              
                          }
-                        `
-                }
-            </style>
-        </Helmet>
-    );
+                        `}
+      </style>
+    </Helmet>
+  );
 }

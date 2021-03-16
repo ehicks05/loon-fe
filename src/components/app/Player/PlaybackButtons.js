@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import { UserContext } from "../../common/UserContextProvider";
-import { AppContext } from "../../common/AppContextProvider";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { UserContext } from "../../../common/UserContextProvider";
+import { AppContext } from "../../../common/AppContextProvider";
+import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import { FaPause, FaPlay, FaStepBackward, FaStepForward } from "react-icons/fa";
 
 const prevButtonStyle = { height: "36px", width: "36px" };

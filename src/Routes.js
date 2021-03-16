@@ -2,19 +2,19 @@ import React, { useContext } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { UserContext } from "./common/UserContextProvider";
 
-import SystemSettings from "./components/routes/SystemSettings";
-import Playlist from "./components/routes/Playlist";
-import Playlists from "./components/routes/Playlists";
-import GeneralSettings from "./components/routes/GeneralSettings";
-import Eq from "./components/routes/Eq";
-import PlaylistBuilder from "./components/routes/PlaylistBuilder";
-import UserSettings from "./components/routes/UserSettings";
-import About from "./components/routes/About";
-import Artists from "./components/routes/Artists";
-import Albums from "./components/routes/Albums";
-import Artist from "./components/routes/Artist";
-import Search from "./components/routes/Search";
-import Album from "./components/routes/Album";
+import SystemSettings from "./components/app/admin/SystemSettings";
+import Playlist from "./components/app/Playlist";
+import Playlists from "./components/app/Playlists";
+import GeneralSettings from "./components/app/settings/GeneralSettings";
+import Eq from "./components/app/settings/Eq";
+import PlaylistBuilder from "./components/app/PlaylistBuilder";
+import UserSettings from "./components/app/admin/UserSettings";
+import About from "./components/app/About";
+import Artists from "./components/app/Artists";
+import Albums from "./components/app/Albums";
+import Artist from "./components/app/Artist";
+import Search from "./components/app/Search";
+import Album from "./components/app/Album";
 
 export default function Routes() {
   const userContext = useContext(UserContext);
