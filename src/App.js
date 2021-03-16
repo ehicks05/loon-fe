@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { Router } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import "bulma/css/bulma.min.css";
-import { Audio } from "@agney/react-loading";
 
 import Header from "./Header";
 import MyHelmet from "./MyHelmet";
@@ -10,22 +9,22 @@ import Player from "./components/player/Player";
 import Routes from "./Routes";
 import { UserContext } from "./common/UserContextProvider";
 import { AppContext } from "./common/AppContextProvider";
-import useWindowSize from "./common/WindowSizeHook";
+import { useWindowSize } from "react-use";
 import LoginForm from "./LoginForm";
 
 import SidePanel from "./SidePanel";
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 export default function App() {
-  const [history, setHistory] = useState({});
-  const [columnHeight, setColumnHeight] = useState({});
+  const [history] = useState(createBrowserHistory({ basename: "/" }));
+  const [columnHeight, setColumnHeight] = useState("");
 
   const userContext = useContext(UserContext);
   const appContext = useContext(AppContext);
-  const windowSize = useWindowSize();
+  const { width, height } = useWindowSize();
 
   useEffect(() => {
-    setHistory(createBrowserHistory({ basename: "/" }));
-
     const pollIntervalId = setInterval(function () {
       fetch("/api/poll", { method: "GET" })
         .then((response) => response.text())
@@ -40,15 +39,10 @@ export default function App() {
   useEffect(() => {
     const headerHeight = 52;
     const progressBarHeight = 23;
-    const footerHeight =
-      progressBarHeight + (windowSize.width <= 768 ? 111 : 62);
-    const columnHeight =
-      "" + (windowSize.height - (headerHeight + footerHeight)) + "px";
-    console.log(
-      `New columnHeight: ${columnHeight}... window height: ${windowSize.height} - (header height(52) + footer height(23 + ${footerHeight}))`
-    );
+    const footerHeight = progressBarHeight + (width <= 768 ? 111 : 62);
+    const columnHeight = "" + (height - (headerHeight + footerHeight)) + "px";
     setColumnHeight(columnHeight);
-  }, [windowSize]);
+  }, [width, height]);
 
   if (!userContext.user) return <LoginForm />;
 
@@ -57,11 +51,24 @@ export default function App() {
   const dataLoaded =
     userContext?.user && appContext?.tracks && appContext?.playlists;
   if (!dataLoaded) {
+    const style = {
+      width: "100vw",
+      height: "100vh",
+      display: "flex",
+    };
+
     return (
       <>
         <MyHelmet />
-        <div style={{ width: "100vw", height: "100vh" }}>
-          <Audio width="50" />
+        <div style={style}>
+          <div style={{ margin: "auto" }}>
+            <Loader
+              type="RevolvingDot"
+              color="#44CC44"
+              height={150}
+              width={150}
+            />
+          </div>
         </div>
       </>
     );

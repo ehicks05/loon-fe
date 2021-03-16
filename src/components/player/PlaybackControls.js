@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { FaVolumeUp, FaVolumeOff, FaRandom } from "react-icons/fa";
 import { UserContext } from "../../common/UserContextProvider";
-import { useMediaQuery } from "../../common/MediaQueryHook";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import TrackProgressBar from "./TrackProgressBar";
 import TrackDescription from "./TrackDescription";
 import PlaybackButtons from "./PlaybackButtons";

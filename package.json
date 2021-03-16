@@ -15,8 +15,11 @@
     "react-dom": "^16.14.0",
     "react-helmet": "^6.1.0",
     "react-icons": "^4.2.0",
+    "react-loader-spinner": "^4.0.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-spinners": "^0.10.6",
+    "react-use": "^17.2.1",
     "react-virtualized": "^9.22.3"
   },
   "devDependencies": {
@@ -48,6 +51,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },  
+  },
   "proxy": "http://localhost:8082"
 }
