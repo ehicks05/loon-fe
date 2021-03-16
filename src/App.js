@@ -1,25 +1,102 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext, useEffect, useState } from "react";
+import { Router } from "react-router-dom";
+import { createBrowserHistory } from "history";
+import "bulma/css/bulma.min.css";
+import { Audio } from "@agney/react-loading";
 
-function App() {
+import Header from "./Header";
+import MyHelmet from "./MyHelmet";
+import Player from "./components/player/Player";
+import Routes from "./Routes";
+import { UserContext } from "./common/UserContextProvider";
+import { AppContext } from "./common/AppContextProvider";
+import useWindowSize from "./common/WindowSizeHook";
+import LoginForm from "./LoginForm";
+
+import SidePanel from "./SidePanel";
+
+export default function App() {
+  const [history, setHistory] = useState({});
+  const [columnHeight, setColumnHeight] = useState({});
+
+  const userContext = useContext(UserContext);
+  const appContext = useContext(AppContext);
+  const windowSize = useWindowSize();
+
+  useEffect(() => {
+    setHistory(createBrowserHistory({ basename: "/" }));
+
+    const pollIntervalId = setInterval(function () {
+      fetch("/api/poll", { method: "GET" })
+        .then((response) => response.text())
+        .then((text) => console.log("poll result: " + text));
+    }, 60 * 60 * 1000); // once an hour
+
+    return function cleanup() {
+      clearInterval(pollIntervalId);
+    };
+  }, []);
+
+  useEffect(() => {
+    const headerHeight = 52;
+    const progressBarHeight = 23;
+    const footerHeight =
+      progressBarHeight + (windowSize.width <= 768 ? 111 : 62);
+    const columnHeight =
+      "" + (windowSize.height - (headerHeight + footerHeight)) + "px";
+    console.log(
+      `New columnHeight: ${columnHeight}... window height: ${windowSize.height} - (header height(52) + footer height(23 + ${footerHeight}))`
+    );
+    setColumnHeight(columnHeight);
+  }, [windowSize]);
+
+  if (!userContext.user) return <LoginForm />;
+
+  console.log(userContext.user);
+
+  const dataLoaded =
+    userContext?.user && appContext?.tracks && appContext?.playlists;
+  if (!dataLoaded) {
+    return (
+      <>
+        <MyHelmet />
+        <div style={{ width: "100vw", height: "100vh" }}>
+          <Audio width="50" />
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Router history={history}>
+      <MyHelmet />
+      <Header />
+      <div className={"columns is-gapless"}>
+        <div
+          id="left-column"
+          style={{ height: columnHeight, overflow: "hidden auto" }}
+          className={"column is-narrow is-hidden-touch"}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <div
+            style={{ height: "100%", display: "flex", flexDirection: "column" }}
+          >
+            <div style={{ overflowY: "auto" }}>
+              <SidePanel />
+            </div>
+            <div style={{ flex: "1 1 auto" }}> </div>
+            <div style={{ height: "100px" }}>
+              <canvas id="spectrumCanvas" height={100} width={150} />
+            </div>
+          </div>
+        </div>
+        <div
+          className="column"
+          style={{ height: columnHeight, overflow: "hidden auto" }}
+        >
+          <Routes />
+        </div>
+      </div>
+      <Player />
+    </Router>
   );
 }
-
-export default App;
