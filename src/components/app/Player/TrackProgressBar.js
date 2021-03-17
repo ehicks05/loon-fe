@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { TimeContext } from "../../../common/TimeContextProvider";
+import React from "react";
+import { useTimeStore } from "../../../common/TimeContextProvider";
 import Slider from "rc-slider/es";
 import "rc-slider/assets/index.css";
 
@@ -13,10 +13,11 @@ const sliderRailStyle = { backgroundColor: "#ddd" };
 const sliderHandleStyle = { borderColor: "hsl(141, 71%, 48%)" };
 
 export default function TrackProgressBar(props) {
-  const timeContext = useContext(TimeContext);
-
-  const elapsedTime = timeContext.elapsedTime;
-  const duration = timeContext.duration;
+  const { elapsedTime, duration, setElapsedTime } = useTimeStore((state) => ({
+    elapsedTime: state.elapsedTime,
+    duration: state.duration,
+    setElapsedTime: state.setElapsedTime,
+  }));
 
   const formattedElapsedTime = formatTime(Math.round(elapsedTime));
   const formattedDuration = formatTime(Math.round(duration));
@@ -28,8 +29,8 @@ export default function TrackProgressBar(props) {
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   }
 
-  function setElapsedTime(value) {
-    timeContext.setElapsedTime(value);
+  function HandleSetElapsedTime(value) {
+    setElapsedTime(value);
     props.onProgressChange(value);
   }
 
@@ -49,7 +50,7 @@ export default function TrackProgressBar(props) {
         value={elapsedTime}
         max={duration}
         step={0.01}
-        onChange={setElapsedTime}
+        onChange={HandleSetElapsedTime}
       />
       <span id="duration" style={durationStyle}>
         {formattedDuration}

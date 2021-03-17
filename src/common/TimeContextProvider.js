@@ -1,21 +1,11 @@
-import React, {useState} from "react";
+import create from "zustand";
 
-const TimeContext = React.createContext();
+const useTimeStore = create((set) => ({
+  elapsedTime: 0,
+  setElapsedTime: (elapsedTime) => set({ elapsedTime }),
 
-function TimeContextProvider(props) {
-    const [elapsedTime, setElapsedTime] = useState(0);
-    const [duration, setDuration] = useState(0);
+  duration: 0,
+  setDuration: (duration) => set({ duration }),
+}));
 
-    return (
-        <TimeContext.Provider value={{
-            elapsedTime: elapsedTime,
-            setElapsedTime: setElapsedTime,
-            duration: duration,
-            setDuration: setDuration,
-        }}>
-            {props.children}
-        </TimeContext.Provider>
-    );
-}
-
-export {TimeContext, TimeContextProvider};
+export { useTimeStore };

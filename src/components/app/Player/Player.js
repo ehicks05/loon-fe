@@ -2,21 +2,25 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import PlaybackControls from "./PlaybackControls";
 import { UserContext } from "../../../common/UserContextProvider";
 import { AppContext } from "../../../common/AppContextProvider";
-import { VolumeContext } from "../../../common/VolumeContextProvider";
 import {
   scaleVolume,
   getMaxSafeGain,
   scrollIntoView,
   getMergedFrequencyBins,
 } from "../../../common/PlayerUtil";
-import { TimeContext } from "../../../common/TimeContextProvider";
+import { useTimeStore } from "../../../common/TimeContextProvider";
+import { useVolumeStore } from "../../../common/VolumeContextProvider";
 
 const Player = () => {
   const userContext = useContext(UserContext);
   const userContextRef = useRef(userContext);
   const appContext = useContext(AppContext);
-  const volumeContext = useContext(VolumeContext);
-  const timeContext = useContext(TimeContext);
+  const { setElapsedTime, setDuration } = useTimeStore((state) => ({
+    setElapsedTime: state.setElapsedTime,
+    setDuration: state.setDuration,
+  }));
+  const volume = useVolumeStore((state) => state.volume);
+  console.log("volume " + volume);
 
   const [playerState, setPlayerState] = useState("stopped");
   const playerStateRef = useRef(playerState);
@@ -51,7 +55,7 @@ const Player = () => {
         handleTrackChange("next");
       };
       audio.ondurationchange = function () {
-        timeContext.setDuration(audio.duration);
+        setDuration(audio.duration);
       };
       audio.onerror = function () {
         console.log(audio.error);
@@ -70,7 +74,7 @@ const Player = () => {
     band4.current = audioCtx.current.createBiquadFilter();
     analyser.current = audioCtx.current.createAnalyser();
 
-    gainNode.current.gain.value = scaleVolume(volumeContext.volume);
+    gainNode.current.gain.value = scaleVolume(volume);
     gainNode.current.connect(trackGainNode.current);
 
     band1.current.type = "lowshelf";
@@ -104,7 +108,7 @@ const Player = () => {
     scrollIntoView(userState.selectedTrackId);
 
     function step() {
-      if (audio) timeContext.setElapsedTime(audio.current.currentTime);
+      if (audio) setElapsedTime(audio.current.currentTime);
     }
     setInterval(step, 500);
 
@@ -139,9 +143,8 @@ const Player = () => {
     );
   }, [userContext.user.userState.selectedTrackId]);
   useEffect(() => {
-    if (gainNode.current)
-      gainNode.current.gain.value = scaleVolume(volumeContext.volume);
-  }, [volumeContext.volume]);
+    if (gainNode.current) gainNode.current.gain.value = scaleVolume(volume);
+  }, [volume]);
 
   useEffect(() => {
     if (!audio.current) return;
@@ -248,7 +251,7 @@ const Player = () => {
       )
         audioCtx.current.resume();
 
-      timeContext.setElapsedTime(0);
+      setElapsedTime(0);
 
       if (!newTrackId)
         newTrackId = userContextRef.current.user.userState.selectedTrackId;

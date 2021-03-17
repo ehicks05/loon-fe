@@ -1,46 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import superFetch from "./SuperFetch";
-import useDebounce from "../hooks/UseDebounce";
+import create from "zustand";
 
-const VolumeContext = React.createContext();
+const useVolumeStore = create((set) => ({
+  volume: -30,
+  setVolume: (volume) => set({ volume }),
 
-function VolumeContextProvider(props) {
-  const userIdRef = useRef(0);
-  const [volume, setVolume] = useState(-30);
-  const volumeDebounced = useDebounce(volume, 1000);
+  duration: 0,
+  setDuration: (duration) => set({ duration }),
+}));
 
-  useEffect(() => {
-    fetchVolume();
-  }, []);
-
-  useEffect(() => {
-    const formData = new FormData();
-    formData.append("volume", volumeDebounced);
-    superFetch("/api/users/" + userIdRef.current, {
-      method: "PUT",
-      body: formData,
-    });
-  }, [volumeDebounced]);
-
-  function fetchVolume() {
-    fetch("/api/users/current", { method: "GET" })
-      .then((response) => response.json())
-      .then((user) => {
-        userIdRef.current = user.id;
-        setVolume(user.userState.volume);
-      });
-  }
-
-  return (
-    <VolumeContext.Provider
-      value={{
-        volume: volume,
-        setVolume: setVolume,
-      }}
-    >
-      {props.children}
-    </VolumeContext.Provider>
-  );
-}
-
-export { VolumeContext, VolumeContextProvider };
+export { useVolumeStore };

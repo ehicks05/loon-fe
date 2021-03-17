@@ -20,7 +20,8 @@
     "react-scripts": "4.0.3",
     "react-spinners": "^0.10.6",
     "react-use": "^17.2.1",
-    "react-virtualized": "^9.22.3"
+    "react-virtualized": "^9.22.3",
+    "zustand": "^3.3.3"
   },
   "devDependencies": {
     "eslint": "^7.21.0",
