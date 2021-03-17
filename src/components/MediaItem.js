@@ -1,7 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import ActionMenu from "./ActionMenu";
 import { Link } from "react-router-dom";
-import { UserContext } from "../common/UserContextProvider";
+import {
+  useUserStore,
+  setSelectedPlaylistId,
+} from "../common/UserContextProvider";
 import useWindowSize from "../hooks/useWindowSize";
 
 const getRowStyle = (draggableStyle, isDragging) => ({
@@ -15,7 +18,11 @@ const getRowStyle = (draggableStyle, isDragging) => ({
 export default function MediaItem(props) {
   const [hover, setHover] = useState(false);
   const [limitTextLength, setLimitTextLength] = useState(true);
-  const userContext = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
+  const selectedContextMenuId = useUserStore(
+    (state) => state.selectedContextMenuId
+  );
+
   const windowSize = useWindowSize();
 
   function handleHoverTrue() {
@@ -30,7 +37,7 @@ export default function MediaItem(props) {
     console.log(
       "setSelectedPlaylistId" + selectedPlaylistId + "..." + selectedTrackId
     );
-    userContext.setSelectedPlaylistId(selectedPlaylistId, selectedTrackId);
+    setSelectedPlaylistId(selectedPlaylistId, selectedTrackId);
   }
 
   // not sure this is a good idea...
@@ -57,9 +64,7 @@ export default function MediaItem(props) {
   const formattedDuration = props.track.formattedDuration;
 
   const highlightClass =
-    trackId === userContext.user.userState.selectedTrackId
-      ? " playingHighlight"
-      : "";
+    trackId === user.userState.selectedTrackId ? " playingHighlight" : "";
 
   const provided = props.provided;
   const snapshot = props.snapshot;
@@ -70,7 +75,7 @@ export default function MediaItem(props) {
   const dragHandleProps = provided ? provided.dragHandleProps : null;
 
   const contextMenuId = "trackId=" + trackId;
-  const isDropdownActive = userContext.selectedContextMenuId === contextMenuId;
+  const isDropdownActive = selectedContextMenuId === contextMenuId;
   const isDragging = snapshot ? snapshot.isDragging : false;
 
   const showActionMenu = !isDragging && (hover || isDropdownActive);

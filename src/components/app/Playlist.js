@@ -11,7 +11,10 @@ import {
   List,
 } from "react-virtualized";
 import DraggingMediaItem from "../DraggingMediaItem";
-import { UserContext } from "../../common/UserContextProvider";
+import {
+  useUserStore,
+  setSelectedContextMenuId,
+} from "../../common/UserContextProvider";
 import { AppContext } from "../../common/AppContextProvider";
 import useWindowSize from "../../hooks/useWindowSize";
 import useDebounce from "../../hooks/UseDebounce";
@@ -29,7 +32,7 @@ export default function Playlist(props) {
   const [playlistId, setPlaylistId] = useState(null);
   const [redirectTo, setRedirectTo] = useState(null);
 
-  const userContext = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
   const appContext = useContext(AppContext);
   const windowSize = useWindowSize();
   const windowSizeDebounced = useDebounce(windowSize, 250);
@@ -43,7 +46,7 @@ export default function Playlist(props) {
     cache.current.clearAll();
 
     return function cleanup() {
-      userContext.setSelectedContextMenuId(null);
+      setSelectedContextMenuId(null);
     };
   }, []);
 
@@ -120,7 +123,7 @@ export default function Playlist(props) {
 
   if (redirectTo) return <Redirect to={redirectTo} />;
 
-  const selectedTrackId = userContext.user.userState.selectedTrackId;
+  const selectedTrackId = user.userState.selectedTrackId;
   const playlist = appContext.getPlaylistById(playlistId);
 
   if (!appContext || !appContext.playlists || !playlist)

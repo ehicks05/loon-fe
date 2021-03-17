@@ -1,5 +1,8 @@
 import React, { useContext } from "react";
-import { UserContext } from "../../../common/UserContextProvider";
+import {
+  useUserStore,
+  setSelectedTrackId,
+} from "../../../common/UserContextProvider";
 import { AppContext } from "../../../common/AppContextProvider";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import { FaPause, FaPlay, FaStepBackward, FaStepForward } from "react-icons/fa";
@@ -9,7 +12,7 @@ const pauseButtonStyle = { height: "45px", width: "45px" };
 const nextButtonStyle = { height: "36px", width: "36px" };
 
 export default function PlaybackButtons(props) {
-  const userContext = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
   const appContext = useContext(AppContext);
   const isWidthOver768 = useMediaQuery("(min-width: 768px)");
 
@@ -19,12 +22,12 @@ export default function PlaybackButtons(props) {
 
   function handleTrackChange(e, direction) {
     const newTrackId = getNewTrackId(direction);
-    userContext.setSelectedTrackId(newTrackId);
+    setSelectedTrackId(newTrackId);
   }
 
   function getCurrentPlaylistTrackIds() {
     const currentPlaylist = appContext.getPlaylistById(
-      userContext.user.userState.selectedPlaylistId
+      user.userState.selectedPlaylistId
     );
     if (currentPlaylist)
       return currentPlaylist.playlistTracks.map(
@@ -36,7 +39,7 @@ export default function PlaybackButtons(props) {
   function getNewTrackId(input) {
     const currentPlaylistTrackIds = getCurrentPlaylistTrackIds();
     let newTrackId = -1;
-    const shuffle = userContext.user.userState.shuffle;
+    const shuffle = user.userState.shuffle;
     if (shuffle) {
       let newPlaylistTrackIndex = Math.floor(
         Math.random() * currentPlaylistTrackIds.length
@@ -45,7 +48,7 @@ export default function PlaybackButtons(props) {
       console.log("new random trackId: " + newTrackId);
     } else {
       const currentTrackIndex = currentPlaylistTrackIds.indexOf(
-        userContext.user.userState.selectedTrackId
+        user.userState.selectedTrackId
       );
 
       let newIndex;

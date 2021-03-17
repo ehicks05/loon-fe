@@ -8,19 +8,24 @@ import {
   FaPlus,
   FaSync,
 } from "react-icons/fa";
-import { UserContext } from "../common/UserContextProvider";
+import {
+  useUserStore,
+  setSelectedContextMenuId,
+} from "../common/UserContextProvider";
 import { AppContext } from "../common/AppContextProvider";
 import useWindowSize from "../hooks/useWindowSize";
 
 export default function ActionMenu(props) {
-  const userContext = useContext(UserContext);
+  const selectedContextMenuId = useUserStore(
+    (state) => state.selectedContextMenuId
+  );
   const appContext = useContext(AppContext);
   const windowSize = useWindowSize();
 
   function toggleDropdown() {
-    if (userContext.selectedContextMenuId === props.contextMenuId)
-      userContext.setSelectedContextMenuId("");
-    else userContext.setSelectedContextMenuId(props.contextMenuId);
+    if (selectedContextMenuId === props.contextMenuId)
+      setSelectedContextMenuId("");
+    else setSelectedContextMenuId(props.contextMenuId);
   }
 
   function handleToggleTracksInPlaylist(
@@ -74,7 +79,7 @@ export default function ActionMenu(props) {
   const equalsQueue = isQueued && trackIds.length === queueIds.length;
 
   const contextMenuId = props.contextMenuId;
-  const isDropdownActive = userContext.selectedContextMenuId === contextMenuId;
+  const isDropdownActive = selectedContextMenuId === contextMenuId;
 
   const addToPlaylistOptions = playlists
     .filter((playlist) => !playlist.favorites && !playlist.queue)

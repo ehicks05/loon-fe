@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
-import { UserContext } from "./common/UserContextProvider";
+import { useUserStore } from "./common/UserContextProvider";
 
 import SystemSettings from "./components/app/admin/SystemSettings";
 import Playlist from "./components/app/Playlist";
@@ -17,8 +17,8 @@ import Search from "./components/app/Search";
 import Album from "./components/app/Album";
 
 export default function Routes() {
-  const userContext = useContext(UserContext);
-  const isAdmin = userContext.user.admin;
+  const user = useUserStore((state) => state.user);
+  const isAdmin = user.admin;
 
   return (
     <>

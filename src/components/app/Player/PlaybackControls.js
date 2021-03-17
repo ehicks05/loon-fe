@@ -1,6 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { FaVolumeUp, FaVolumeOff, FaRandom } from "react-icons/fa";
-import { UserContext } from "../../../common/UserContextProvider";
+import {
+  useUserStore,
+  setShuffle,
+  setMuted,
+} from "../../../common/UserContextProvider";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import TrackProgressBar from "./TrackProgressBar";
 import TrackDescription from "./TrackDescription";
@@ -74,17 +78,15 @@ export default function PlaybackControls(props) {
 const shuffleButtonStyle = { marginLeft: "1.5em" };
 
 function ShuffleButton() {
-  const userContext = useContext(UserContext);
-
+  const user = useUserStore((state) => state.user);
   function handleShuffleChange() {
-    userContext.setShuffle(!userContext.user.userState.shuffle);
+    setShuffle(!user.userState.shuffle);
   }
 
   return (
     <a
       className={
-        "button is-small" +
-        (userContext.user.userState.shuffle ? " is-success" : "")
+        "button is-small" + (user.userState.shuffle ? " is-success" : "")
       }
       style={shuffleButtonStyle}
       id="shuffleBtn"
@@ -100,10 +102,9 @@ function ShuffleButton() {
 const muteButtonStyle = { margin: "0 .75em 0 .5em" };
 
 function MuteButton() {
-  const userContext = useContext(UserContext);
-
+  const user = useUserStore((state) => state.user);
   function handleMuteChange() {
-    userContext.setMuted(!userContext.user.userState.muted);
+    setMuted(!user.userState.muted);
   }
 
   return (
@@ -114,11 +115,7 @@ function MuteButton() {
       onClick={handleMuteChange}
     >
       <span className="icon">
-        {userContext.user.userState.muted ? (
-          <FaVolumeOff fixedWidth />
-        ) : (
-          <FaVolumeUp />
-        )}
+        {user.userState.muted ? <FaVolumeOff fixedWidth /> : <FaVolumeUp />}
       </span>
     </a>
   );

@@ -7,7 +7,7 @@ import Header from "./Header";
 import MyHelmet from "./MyHelmet";
 import Player from "./components/app/Player/Player";
 import Routes from "./Routes";
-import { UserContext } from "./common/UserContextProvider";
+import { useUserStore } from "./common/UserContextProvider";
 import { AppContext } from "./common/AppContextProvider";
 import { useWindowSize } from "react-use";
 import LoginForm from "./LoginForm";
@@ -20,7 +20,7 @@ export default function App() {
   const [history] = useState(createBrowserHistory({ basename: "/" }));
   const [columnHeight, setColumnHeight] = useState("");
 
-  const userContext = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
   const appContext = useContext(AppContext);
   const { width, height } = useWindowSize();
 
@@ -48,11 +48,11 @@ export default function App() {
   useEffect(() => {
     function getSelectedTrack() {
       const ready =
-        userContext.user?.userState?.selectedTrackId &&
+        user?.userState?.selectedTrackId &&
         appContext.tracks &&
         typeof appContext.tracks === "object";
       return ready
-        ? appContext.getTrackById(userContext.user.userState.selectedTrackId)
+        ? appContext.getTrackById(user.userState.selectedTrackId)
         : null;
     }
 
@@ -61,14 +61,13 @@ export default function App() {
       ? selectedTrack.title + " by " + selectedTrack.artist
       : "Loon";
     window.document.title = title;
-  }, [appContext, userContext.user?.userState?.selectedTrackId]);
+  }, [appContext, user?.userState?.selectedTrackId]);
 
-  if (!userContext.user) return <LoginForm />;
+  if (!user) return <LoginForm />;
 
-  console.log(userContext.user);
+  console.log(user);
 
-  const dataLoaded =
-    userContext?.user && appContext?.tracks && appContext?.playlists;
+  const dataLoaded = user && appContext?.tracks && appContext?.playlists;
   if (!dataLoaded) {
     const style = {
       width: "100vw",

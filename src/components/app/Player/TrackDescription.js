@@ -4,20 +4,20 @@ import React, { useContext } from "react";
 import { AppContext } from "../../../common/AppContextProvider";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
-import { UserContext } from "../../../common/UserContextProvider";
+import { useUserStore } from "../../../common/UserContextProvider";
 
 const albumArtStyle = { height: "48px", margin: "0", paddingRight: "8px" };
 // const trackStyle = {maxWidth: textWidth, maxHeight: '48px', overflow: 'auto'};
 const artistAlbumTextStyle = { fontSize: ".875rem" };
 
 export default function TrackDescription() {
-  const userContext = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
   const appContext = useContext(AppContext);
   const isWidthOver768 = useMediaQuery("(min-width: 768px)");
 
   function getSelectedTrack() {
     return appContext.tracks && typeof appContext.tracks === "object"
-      ? appContext.getTrackById(userContext.user.userState.selectedTrackId)
+      ? appContext.getTrackById(user.userState.selectedTrackId)
       : null;
   }
 

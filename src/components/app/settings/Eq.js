@@ -1,24 +1,23 @@
-import React, { useContext } from "react";
+import React from "react";
 import VerticalSlider from "../../VerticalSlider";
-import { UserContext } from "../../../common/UserContextProvider";
+import { useUserStore, setEq } from "../../../common/UserContextProvider";
 
 export default function Eq() {
-  const userContext = useContext(UserContext);
-
-  if (!userContext || !userContext.user) return <div>Loading...</div>;
+  const user = useUserStore((state) => state.user);
+  if (!user) return <div>Loading...</div>;
 
   function handleEqChange(e) {
     const eqNum = e.target.name.substring(2, 3);
     const field = e.target.name.substring(3);
     const value = e.target.value;
 
-    userContext.setEq(eqNum, field, value);
+    setEq(eqNum, field, value);
   }
 
   function handleSliderChange(value, name) {
     const eqNum = name.substring(2, 3);
     const field = name.substring(3);
-    userContext.setEq(eqNum, field, value);
+    setEq(eqNum, field, value);
   }
 
   const cellStyle = {
@@ -26,7 +25,7 @@ export default function Eq() {
     verticalAlign: "middle",
     padding: "8px",
   };
-  const userState = userContext.user.userState;
+  const userState = user.userState;
 
   const eqs = [
     {

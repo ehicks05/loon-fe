@@ -1,90 +1,65 @@
-import React, { useEffect, useState } from "react";
-import superFetch from "./SuperFetch";
+import create from "zustand";
 
-const UserContext = React.createContext();
+const baseUrl = "/api/users/";
 
-function UserContextProvider(props) {
-  const [user, setUser] = useState(null);
-  const [selectedContextMenuId, setSelectedContextMenuId] = useState(null);
+export const useUserStore = create(() => ({
+  user: null,
+  selectedContextMenuId: null,
+}));
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+export const setUser = (user) => useUserStore.setState({ user: user });
 
-  function fetchUser() {
-    fetch("/api/users/current", { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => setUser(data));
-  }
+export const fetchUser = async () => {
+  const response = await fetch("/api/users/current");
+  useUserStore.setState({ user: await response.json() });
+};
+export const updateUser = async (url, formData) => {
+  await fetch(baseUrl + url, { method: "PUT", body: formData });
+  await fetchUser();
+};
 
-  function updateUser(url, formData) {
-    const options = {
-      method: "PUT",
-      body: formData,
-    };
-
-    superFetch(url, options).then(fetchUser);
-  }
-
-  function setSelectedPlaylistId(selectedPlaylistId, selectedTrackId) {
-    const formData = new FormData();
-    formData.append("selectedPlaylistId", selectedPlaylistId);
-    formData.append("selectedTrackId", selectedTrackId);
-    updateUser("/api/users/" + user.id + "/saveProgress", formData);
-  }
-
-  function setSelectedTrackId(selectedTrackId) {
-    const formData = new FormData();
-    formData.append("selectedPlaylistId", user.userState.selectedPlaylistId);
-    formData.append("selectedTrackId", selectedTrackId);
-    updateUser("/api/users/" + user.id + "/saveProgress", formData);
-  }
-
-  function setMuted(muted) {
-    const formData = new FormData();
-    formData.append("muted", muted);
-    updateUser("/api/users/" + user.id, formData);
-  }
-
-  function setShuffle(shuffle) {
-    const formData = new FormData();
-    formData.append("shuffle", shuffle);
-    updateUser("/api/users/" + user.id, formData);
-  }
-
-  function setTranscode(transcode) {
-    const formData = new FormData();
-    formData.append("transcode", transcode);
-    updateUser("/api/users/" + user.id, formData);
-  }
-
-  function setEq(eqNum, field, value) {
-    const formData = new FormData();
-    formData.append("eqNum", eqNum);
-    formData.append("field", field);
-    formData.append("value", value);
-    updateUser("/api/users/" + user.id + "/eq", formData);
-  }
-
-  return (
-    <UserContext.Provider
-      value={{
-        user: user,
-        setUser: setUser, // todo this may not be needed if we only intend to update user through fetching it from back end
-        fetchUser: fetchUser,
-        setSelectedPlaylistId: setSelectedPlaylistId,
-        setSelectedTrackId: setSelectedTrackId,
-        setMuted: setMuted,
-        setShuffle: setShuffle,
-        setTranscode: setTranscode,
-        setEq: setEq,
-        selectedContextMenuId: selectedContextMenuId,
-        setSelectedContextMenuId: setSelectedContextMenuId,
-      }}
-    >
-      {props.children}
-    </UserContext.Provider>
+export const setSelectedPlaylistId = async (
+  selectedPlaylistId,
+  selectedTrackId
+) => {
+  const formData = new FormData();
+  formData.append("selectedPlaylistId", selectedPlaylistId);
+  formData.append("selectedTrackId", selectedTrackId);
+  updateUser(useUserStore.getState().user.id + "/saveProgress", formData);
+};
+export const setSelectedTrackId = async (selectedTrackId) => {
+  const formData = new FormData();
+  formData.append(
+    "selectedPlaylistId",
+    useUserStore.getState().user.userState.selectedPlaylistId
   );
-}
+  formData.append("selectedTrackId", selectedTrackId);
+  updateUser(useUserStore.getState().user.id + "/saveProgress", formData);
+};
 
-export { UserContext, UserContextProvider };
+export const setMuted = async (muted) => {
+  const formData = new FormData();
+  formData.append("muted", muted);
+  updateUser(useUserStore.getState().user.id, formData);
+};
+export const setShuffle = async (shuffle) => {
+  const formData = new FormData();
+  formData.append("shuffle", shuffle);
+  updateUser(useUserStore.getState().user.id, formData);
+};
+export const setTranscode = async (transcode) => {
+  const formData = new FormData();
+  formData.append("transcode", transcode);
+  updateUser(useUserStore.getState().user.id, formData);
+};
+
+export const setEq = async (eqNum, field, value) => {
+  const formData = new FormData();
+  formData.append("eqNum", eqNum);
+  formData.append("field", field);
+  formData.append("value", value);
+  updateUser(useUserStore.getState().user.id + "/eq", formData);
+};
+
+export const setSelectedContextMenuId = (selectedContextMenuId) =>
+  useUserStore.setState({ selectedContextMenuId: selectedContextMenuId });

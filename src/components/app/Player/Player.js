@@ -1,6 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import PlaybackControls from "./PlaybackControls";
-import { UserContext } from "../../../common/UserContextProvider";
+import {
+  useUserStore,
+  setSelectedTrackId,
+} from "../../../common/UserContextProvider";
 import { AppContext } from "../../../common/AppContextProvider";
 import {
   scaleVolume,
@@ -12,8 +15,7 @@ import { useTimeStore } from "../../../common/TimeContextProvider";
 import { useVolumeStore } from "../../../common/VolumeContextProvider";
 
 const Player = () => {
-  const userContext = useContext(UserContext);
-  const userContextRef = useRef(userContext);
+  const user = useUserStore((state) => state.user);
   const appContext = useContext(AppContext);
   const { setElapsedTime, setDuration } = useTimeStore((state) => ({
     setElapsedTime: state.setElapsedTime,
@@ -29,10 +31,6 @@ const Player = () => {
     playerStateRef.current = playerState;
   }, [playerState]);
 
-  useEffect(() => {
-    userContextRef.current = userContext;
-  }, [userContext]);
-
   let audio = useRef({});
   let audioCtx = useRef({});
   let trackGainNode = useRef({});
@@ -45,7 +43,7 @@ const Player = () => {
   let audioBufferSourceNode = useRef({});
 
   useEffect(() => {
-    const userState = userContextRef.current.user.userState;
+    const userState = user.userState;
 
     function initAudio() {
       let audio = new Audio();
@@ -137,11 +135,8 @@ const Player = () => {
       return;
     }
 
-    handlePlayerStateChange(
-      null,
-      userContextRef.current.user.userState.selectedTrackId
-    );
-  }, [userContext.user.userState.selectedTrackId]);
+    handlePlayerStateChange(null, user.userState.selectedTrackId);
+  }, [user.userState.selectedTrackId]);
   useEffect(() => {
     if (gainNode.current) gainNode.current.gain.value = scaleVolume(volume);
   }, [volume]);
@@ -149,7 +144,7 @@ const Player = () => {
   useEffect(() => {
     if (!audio.current) return;
 
-    const userState = userContextRef.current.user.userState;
+    const userState = user.userState;
     audio.current.muted = userState.muted;
     band1.current.frequency.value = userState.eq1Frequency;
     band1.current.gain.value = userState.eq1Gain;
@@ -159,12 +154,12 @@ const Player = () => {
     band3.current.gain.value = userState.eq3Gain;
     band4.current.frequency.value = userState.eq4Frequency;
     band4.current.gain.value = userState.eq4Gain;
-  }, [userContext]);
+  }, [user]);
 
   // todo next 3 functions are duplicates, also found in PlaybackButtons.js
   function handleTrackChange(direction) {
     const newTrackId = getNewTrackId(direction);
-    userContextRef.current.setSelectedTrackId(newTrackId);
+    setSelectedTrackId(newTrackId);
   }
 
   function getCurrentPlaylistTrackIds(selectedPlaylistId) {
@@ -177,11 +172,9 @@ const Player = () => {
   }
 
   function getNewTrackId(input) {
-    const selectedTrackId =
-      userContextRef.current.user.userState.selectedTrackId;
-    const selectedPlaylistId =
-      userContextRef.current.user.userState.selectedPlaylistId;
-    const shuffle = userContextRef.current.user.userState.shuffle;
+    const selectedTrackId = user.userState.selectedTrackId;
+    const selectedPlaylistId = user.userState.selectedPlaylistId;
+    const shuffle = user.userState.shuffle;
 
     const currentPlaylistTrackIds = getCurrentPlaylistTrackIds(
       selectedPlaylistId
@@ -253,8 +246,7 @@ const Player = () => {
 
       setElapsedTime(0);
 
-      if (!newTrackId)
-        newTrackId = userContextRef.current.user.userState.selectedTrackId;
+      if (!newTrackId) newTrackId = user.userState.selectedTrackId;
 
       let track = appContext.tracks.find((track) => track.id === newTrackId);
       if (!track) {

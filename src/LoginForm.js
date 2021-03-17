@@ -1,9 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import superFetch from "./common/SuperFetch";
-import { UserContext } from "./common/UserContextProvider";
+import { useUserStore, fetchUser } from "./common/UserContextProvider";
 
 function LoginForm() {
-  const { user, fetchUser } = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
+
   const [failureMessage, setFailureMessage] = useState("");
 
   function login(e) {

@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { UserContext } from "../common/UserContextProvider";
+import React, { useState } from "react";
+import { useUserStore } from "../common/UserContextProvider";
 import useWindowSize from "../hooks/useWindowSize";
 
 function formatTime(secs) {
@@ -10,7 +10,7 @@ function formatTime(secs) {
 
 export default function DraggingMediaItem(props) {
   const [limitTextLength, setLimitTextLength] = useState(true);
-  const userContext = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
   const windowSize = useWindowSize();
 
   // not sure this is a good idea...
@@ -39,9 +39,7 @@ export default function DraggingMediaItem(props) {
   const formattedDuration = track.duration;
 
   const highlightClass =
-    trackId === userContext.user.userState.selectedTrackId
-      ? " playingHighlight"
-      : "";
+    trackId === user.userState.selectedTrackId ? " playingHighlight" : "";
 
   const innerRef = provided ? provided.innerRef : null;
   const draggableProps = provided ? provided.draggableProps : null;

@@ -11,11 +11,11 @@ import {
 } from "react-icons/fa";
 import superFetch from "./common/SuperFetch";
 import { useMediaQuery } from "./hooks/useMediaQuery";
-import { UserContext } from "./common/UserContextProvider";
+import { useUserStore } from "./common/UserContextProvider";
 import { AppContext } from "./common/AppContextProvider";
 
 export default function Header() {
-  const userContext = useContext(UserContext);
+  const user = useUserStore((state) => state.user);
   const appContext = useContext(AppContext);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function Header() {
     );
   }
 
-  const isAdmin = userContext.user.admin;
+  const isAdmin = user.admin;
   const playlists = appContext.playlists
     .filter((playlist) => !playlist.favorites && !playlist.queue)
     .map((playlist) => {

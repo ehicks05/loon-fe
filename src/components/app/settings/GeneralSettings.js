@@ -1,10 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bulma-switch/dist/css/bulma-switch.min.css";
-import { UserContext } from "../../../common/UserContextProvider";
+import {
+  useUserStore,
+  setTranscode,
+} from "../../../common/UserContextProvider";
 
 export default function GeneralSettings() {
-  const userContext = useContext(UserContext);
-
+  const user = useUserStore((state) => state.user);
   const [transcodeQuality, setTranscodeQuality] = useState("");
 
   useEffect(() => {
@@ -13,8 +15,8 @@ export default function GeneralSettings() {
       .then((data) => setTranscodeQuality(data));
   }, []);
 
-  function setTranscode(e) {
-    userContext.setTranscode(e.target.checked);
+  function handleSetTranscode(e) {
+    setTranscode(e.target.checked);
   }
 
   return (
@@ -31,8 +33,8 @@ export default function GeneralSettings() {
               className="switch is-rounded"
               id="transcode"
               name="transcode"
-              checked={userContext.user.userState.transcode}
-              onChange={(e) => setTranscode(e)}
+              checked={user.userState.transcode}
+              onChange={(e) => handleSetTranscode(e)}
             />
             <label htmlFor="transcode">
               Transcode all tracks to mp3 v{transcodeQuality}

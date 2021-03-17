@@ -9,7 +9,10 @@ import {
 import TextInput from "../TextInput";
 import { FaSearch } from "react-icons/fa";
 import { AppContext } from "../../common/AppContextProvider";
-import { UserContext } from "../../common/UserContextProvider";
+import {
+  useUserStore,
+  setSelectedContextMenuId,
+} from "../../common/UserContextProvider";
 import useDebounce from "../../hooks/UseDebounce";
 
 export default function Search() {
@@ -17,8 +20,7 @@ export default function Search() {
   const [searchKey, setSearchKey] = useState("");
 
   const appContext = useContext(AppContext);
-  const userContext = useContext(UserContext);
-
+  const user = useUserStore((state) => state.user);
   const cache = useRef(
     new CellMeasurerCache({ fixedWidth: true, defaultHeight: 58 })
   );
@@ -28,9 +30,9 @@ export default function Search() {
 
   useEffect(() => {
     return function cleanup() {
-      userContext.setSelectedContextMenuId(null);
+      setSelectedContextMenuId(null);
     };
-  }, [userContext]);
+  }, []);
 
   useEffect(() => {
     const key = debouncedSearchKey.toLowerCase();
@@ -53,7 +55,7 @@ export default function Search() {
     setSearchKey(e.target.value);
   }
 
-  const selectedTrackId = userContext.user.userState.selectedTrackId;
+  const selectedTrackId = user.userState.selectedTrackId;
   const scrollToIndex = searchResults.indexOf(
     searchResults.find((track) => track.id === selectedTrackId)
   );
