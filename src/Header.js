@@ -254,12 +254,14 @@ export default function Header() {
           </div>
         </div>
         <div className="navbar-end">
-          <a onClick={handleLogout} href={null} className="navbar-item">
-            <span style={{ marginRight: "4px" }}>Sign Out</span>
-            <span className="icon is-medium">
-              <FaSignOutAlt />
-            </span>
-          </a>
+          <span className="navbar-item">
+            <button onClick={handleLogout} className="button is-success">
+              <span style={{ marginRight: "4px" }}>Sign Out</span>
+              <span className="icon is-medium">
+                <FaSignOutAlt />
+              </span>
+            </button>
+          </span>
         </div>
       </div>
     </nav>

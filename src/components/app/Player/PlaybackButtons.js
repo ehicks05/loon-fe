@@ -77,7 +77,7 @@ export default function PlaybackButtons(props) {
   }
 
   const prevButton = (
-    <a
+    <button
       className="button"
       style={prevButtonStyle}
       onClick={(e) => handleTrackChange(e, "prev")}
@@ -85,11 +85,11 @@ export default function PlaybackButtons(props) {
       <span className="icon">
         <FaStepBackward />
       </span>
-    </a>
+    </button>
   );
 
   const playButton = (
-    <a
+    <button
       className="button is-medium"
       style={pauseButtonStyle}
       onClick={(e) =>
@@ -102,11 +102,11 @@ export default function PlaybackButtons(props) {
       <span className="icon">
         {props.playerState === "playing" ? <FaPause /> : <FaPlay />}
       </span>
-    </a>
+    </button>
   );
 
   const nextButton = (
-    <a
+    <button
       className="button"
       style={nextButtonStyle}
       onClick={(e) => handleTrackChange(e, "next")}
@@ -114,7 +114,7 @@ export default function PlaybackButtons(props) {
       <span className="icon">
         <FaStepForward />
       </span>
-    </a>
+    </button>
   );
 
   return (

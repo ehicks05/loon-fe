@@ -84,18 +84,17 @@ function ShuffleButton() {
   }
 
   return (
-    <a
+    <button
       className={
         "button is-small" + (user.userState.shuffle ? " is-success" : "")
       }
       style={shuffleButtonStyle}
-      id="shuffleBtn"
       onClick={handleShuffleChange}
     >
       <span className="icon">
         <FaRandom />
       </span>
-    </a>
+    </button>
   );
 }
 
@@ -108,15 +107,14 @@ function MuteButton() {
   }
 
   return (
-    <a
+    <button
       className="button is-small"
-      id="muteBtn"
       style={muteButtonStyle}
       onClick={handleMuteChange}
     >
       <span className="icon">
         {user.userState.muted ? <FaVolumeOff fixedWidth /> : <FaVolumeUp />}
       </span>
-    </a>
+    </button>
   );
 }
