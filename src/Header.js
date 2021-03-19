@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaServer,
@@ -17,58 +17,12 @@ import { useAppStore } from "./common/AppContextProvider";
 export default function Header() {
   const user = useUserStore((state) => state.user);
   const playlists = useAppStore((state) => state.playlists);
+  const [isActive, setIsActive] = useState(false);
 
-  useEffect(() => {
-    // Get all "navbar-burger" elements
-    var $navbarBurgers = Array.prototype.slice.call(
-      document.querySelectorAll(".navbar-burger"),
-      0
-    );
-
-    // Check if there are any navbar burgers
-    if ($navbarBurgers.length > 0) {
-      // Add a click event on each of them
-      $navbarBurgers.forEach(function ($el) {
-        $el.addEventListener("click", function () {
-          // Get the target from the "data-target" attribute
-          var target = $el.dataset.target;
-          var $target = document.getElementById(target);
-
-          // Toggle the class on both the "navbar-burger" and the "navbar-menu"
-          $el.classList.toggle("is-active");
-          $target.classList.toggle("is-active");
-        });
-      });
-
-      let navbarLinks = Array.prototype.slice.call(
-        document.querySelectorAll("#navMenu a"),
-        0
-      );
-      navbarLinks.forEach(function ($el) {
-        $el.addEventListener("click", function () {
-          document.querySelector(".navbar-burger").click();
-        });
-      });
-    }
-  }, []);
-
-  // Fix issue where bulma dropdown doesn't close after clicking on a dropdown item
-  // source: https://github.com/jgthms/bulma/issues/2514#issuecomment-614443534
-  useEffect(() => {
-    function toggleMenu(e) {
-      let menu = e.currentTarget.querySelector(".navbar-dropdown");
-      if (e.target.parentElement.classList.contains("navbar-dropdown"))
-        if (menu) menu.style.display = "none";
-      setTimeout(() => {
-        if (menu) menu.style.display = "";
-        e.target.blur();
-      }, 100);
-    }
-
-    document.querySelectorAll(".navbar-item").forEach((navbarItem) => {
-      navbarItem.addEventListener("click", toggleMenu);
-    });
-  }, []);
+  const handleClickNavbarItem = (e) => {
+    setIsActive(!isActive);
+    e.target.blur();
+  };
 
   function handleLogout() {
     superFetch("/logout", { method: "POST" }).then(
@@ -84,6 +38,7 @@ export default function Header() {
         to={"/playlists/" + playlist.id}
         className={"navbar-item"}
         activeClassName={"is-active"}
+        onClick={handleClickNavbarItem}
       >
         <span className="panel-icon">
           <FaMusic aria-hidden="true" />
@@ -123,19 +78,31 @@ export default function Header() {
           />
         </div>
 
-        <a role="button" className="navbar-burger burger" data-target="navMenu">
-          <span />
-          <span />
-          <span />
-        </a>
+        <div
+          role="button"
+          tabIndex={0}
+          className={`navbar-burger burger ${isActive ? "is-active" : ""}`}
+          aria-label="menu"
+          aria-expanded="false"
+          onClick={() => setIsActive(!isActive)}
+        >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </div>
       </div>
 
-      <div className="navbar-menu" id="navMenu" style={navbarMenuStyle}>
+      <div
+        className={`navbar-menu ${isActive ? "is-active" : ""}`}
+        id="navMenu"
+        style={navbarMenuStyle}
+      >
         <div className="navbar-start">
           <NavLink
             to="/search"
             activeClassName="is-active"
             className="navbar-item"
+            onClick={handleClickNavbarItem}
           >
             Search
           </NavLink>
@@ -143,6 +110,7 @@ export default function Header() {
             to="/favorites"
             activeClassName="is-active"
             className="navbar-item"
+            onClick={handleClickNavbarItem}
           >
             Favorites
           </NavLink>
@@ -150,6 +118,7 @@ export default function Header() {
             to="/queue"
             activeClassName="is-active"
             className="navbar-item"
+            onClick={handleClickNavbarItem}
           >
             Queue
           </NavLink>
@@ -157,6 +126,7 @@ export default function Header() {
             to="/artists"
             activeClassName="is-active"
             className="navbar-item"
+            onClick={handleClickNavbarItem}
           >
             Artists
           </NavLink>
@@ -164,6 +134,7 @@ export default function Header() {
             to="/albums"
             activeClassName="is-active"
             className="navbar-item"
+            onClick={handleClickNavbarItem}
           >
             Albums
           </NavLink>
@@ -172,6 +143,7 @@ export default function Header() {
               to="/playlists"
               activeClassName="is-active"
               className="navbar-item"
+              onClick={handleClickNavbarItem}
             >
               Playlists
             </NavLink>
@@ -182,6 +154,7 @@ export default function Header() {
                 to="/playlists"
                 activeClassName="is-active"
                 className="navbar-link"
+                onClick={handleClickNavbarItem}
               >
                 Playlists
               </NavLink>
@@ -197,6 +170,7 @@ export default function Header() {
                   to={"/admin/systemSettings"}
                   className="navbar-item"
                   activeClassName="is-active"
+                  onClick={handleClickNavbarItem}
                 >
                   <span className="panel-icon">
                     <FaServer />
@@ -207,6 +181,7 @@ export default function Header() {
                   to={"/admin/users"}
                   className="navbar-item"
                   activeClassName="is-active"
+                  onClick={handleClickNavbarItem}
                 >
                   <span className="panel-icon">
                     <FaUser />
@@ -217,6 +192,7 @@ export default function Header() {
                   to={"/admin/about"}
                   className="navbar-item"
                   activeClassName="is-active"
+                  onClick={handleClickNavbarItem}
                 >
                   <span className="panel-icon">
                     <FaInfoCircle />
@@ -234,6 +210,7 @@ export default function Header() {
                 to={"/settings/general"}
                 className="navbar-item"
                 activeClassName="is-active"
+                onClick={handleClickNavbarItem}
               >
                 <span className="panel-icon">
                   <FaUserCog />
@@ -244,6 +221,7 @@ export default function Header() {
                 to={"/settings/eq"}
                 className="navbar-item"
                 activeClassName="is-active"
+                onClick={handleClickNavbarItem}
               >
                 <span className="panel-icon">
                   <FaSlidersH rotation={90} />
