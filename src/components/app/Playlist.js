@@ -23,7 +23,7 @@ import {
   copyPlaylist,
   getPlaylistById,
 } from "../../common/AppContextProvider";
-import useWindowSize from "../../hooks/useWindowSize";
+import { useWindowSize } from "react-use";
 import useDebounce from "../../hooks/UseDebounce";
 
 const autoSizerStyle = { outline: 0 };
@@ -84,7 +84,7 @@ export default function Playlist(props) {
     }
 
     setPlaylistId(parsePlaylistId());
-  }, [props.match]);
+  }, [playlists, props.match]);
 
   function onDragEnd(result) {
     // dropped outside the list
@@ -227,7 +227,7 @@ export default function Playlist(props) {
   function renderRow({ index, key, style, parent, playlistTracks }) {
     // const playlistTrack = this.props.store.appState.getPlaylistById(this.state.playlistId).playlistTracks.find(track => track.index === index);
     const playlistTrack = playlistTracks[index];
-    const track = trackMap.get(playlistTrack.track.id);
+    const track = trackMap[playlistTrack.track.id];
 
     return (
       <Draggable
@@ -295,9 +295,12 @@ export default function Playlist(props) {
                   </span>
                 </div>
                 <div className="control">
-                  <a className="button is-primary" onClick={saveAsPlaylist}>
+                  <button
+                    className="button is-primary"
+                    onClick={saveAsPlaylist}
+                  >
                     Ok
-                  </a>
+                  </button>
                 </div>
               </div>
             </form>
@@ -325,7 +328,7 @@ export default function Playlist(props) {
 
   function renderDraggingMediaItem(index, provided) {
     const playlistTrack = getPlaylistById(playlistId).playlistTracks[index];
-    const track = trackMap.get(playlistTrack.track.id);
+    const track = trackMap[playlistTrack.track.id];
 
     return (
       <DraggingMediaItem

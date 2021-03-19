@@ -16,7 +16,7 @@ import {
   useAppStore,
   toggleTracksInPlaylist,
 } from "../common/AppContextProvider";
-import useWindowSize from "../hooks/useWindowSize";
+import { useWindowSize } from "react-use";
 
 export default function ActionMenu(props) {
   const selectedContextMenuId = useUserStore(

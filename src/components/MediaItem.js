@@ -5,7 +5,7 @@ import {
   useUserStore,
   setSelectedPlaylistId,
 } from "../common/UserContextProvider";
-import useWindowSize from "../hooks/useWindowSize";
+import { useWindowSize } from "react-use";
 
 const getRowStyle = (draggableStyle, isDragging) => ({
   // some basic styles to make the items look a bit nicer

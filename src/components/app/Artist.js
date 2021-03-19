@@ -2,7 +2,7 @@ import React from "react";
 import Albums from "./Albums";
 import { ArtistCard } from "../ArtistCard";
 import { useAppStore } from "../../common/AppContextProvider";
-import useWindowSize from "../../hooks/useWindowSize";
+import { useWindowSize } from "react-use";
 import MediaItem from "../MediaItem";
 import _ from "lodash";
 

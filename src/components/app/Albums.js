@@ -2,7 +2,7 @@ import React from "react";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
 import { useAppStore } from "../../common/AppContextProvider";
-import useWindowSize from "../../hooks/useWindowSize";
+import { useWindowSize } from "react-use";
 import AlbumCard from "../AlbumCard";
 import _ from "lodash";
 
