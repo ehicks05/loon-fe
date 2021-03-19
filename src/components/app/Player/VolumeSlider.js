@@ -1,5 +1,5 @@
 import React from "react";
-import { useVolumeStore } from "../../../common/VolumeContextProvider";
+import { useUserStore, setVolume } from "../../../common/UserContextProvider";
 import Slider, { createSliderWithTooltip } from "rc-slider/es";
 import "rc-slider/assets/index.css";
 
@@ -11,10 +11,7 @@ const sliderRailStyle = { backgroundColor: "#ddd" };
 const sliderHandleStyle = { borderColor: "hsl(141, 71%, 48%)" };
 
 export default function VolumeSlider() {
-  const { volume, setVolume } = useVolumeStore((state) => ({
-    volume: state.volume,
-    setVolume: state.setVolume,
-  }));
+  const volume = useUserStore((state) => state.user.userState.volume);
 
   return (
     <div style={volumeSliderStyle}>

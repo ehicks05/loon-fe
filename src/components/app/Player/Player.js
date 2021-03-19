@@ -1,10 +1,13 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PlaybackControls from "./PlaybackControls";
 import {
   useUserStore,
   setSelectedTrackId,
 } from "../../../common/UserContextProvider";
-import { AppContext } from "../../../common/AppContextProvider";
+import {
+  useAppStore,
+  getPlaylistById,
+} from "../../../common/AppContextProvider";
 import {
   scaleVolume,
   getMaxSafeGain,
@@ -12,17 +15,15 @@ import {
   getMergedFrequencyBins,
 } from "../../../common/PlayerUtil";
 import { useTimeStore } from "../../../common/TimeContextProvider";
-import { useVolumeStore } from "../../../common/VolumeContextProvider";
 
 const Player = () => {
   const user = useUserStore((state) => state.user);
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const { setElapsedTime, setDuration } = useTimeStore((state) => ({
     setElapsedTime: state.setElapsedTime,
     setDuration: state.setDuration,
   }));
-  const volume = useVolumeStore((state) => state.volume);
-  console.log("volume " + volume);
+  const volume = user.userState.volume;
 
   const [playerState, setPlayerState] = useState("stopped");
   const playerStateRef = useRef(playerState);
@@ -163,12 +164,12 @@ const Player = () => {
   }
 
   function getCurrentPlaylistTrackIds(selectedPlaylistId) {
-    const currentPlaylist = appContext.getPlaylistById(selectedPlaylistId);
+    const currentPlaylist = getPlaylistById(selectedPlaylistId);
     if (currentPlaylist)
       return currentPlaylist.playlistTracks.map(
         (playlistTrack) => playlistTrack.track.id
       );
-    else return appContext.tracks.map((track) => track.id);
+    else return tracks.map((track) => track.id);
   }
 
   function getNewTrackId(input) {
@@ -248,7 +249,7 @@ const Player = () => {
 
       if (!newTrackId) newTrackId = user.userState.selectedTrackId;
 
-      let track = appContext.tracks.find((track) => track.id === newTrackId);
+      let track = tracks.find((track) => track.id === newTrackId);
       if (!track) {
         console.log("no track found...");
         handleTrackChange("next");

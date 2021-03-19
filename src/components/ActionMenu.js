@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   FaEllipsisH,
   FaHeart,
@@ -12,14 +12,17 @@ import {
   useUserStore,
   setSelectedContextMenuId,
 } from "../common/UserContextProvider";
-import { AppContext } from "../common/AppContextProvider";
+import {
+  useAppStore,
+  toggleTracksInPlaylist,
+} from "../common/AppContextProvider";
 import useWindowSize from "../hooks/useWindowSize";
 
 export default function ActionMenu(props) {
   const selectedContextMenuId = useUserStore(
     (state) => state.selectedContextMenuId
   );
-  const appContext = useContext(AppContext);
+  const playlists = useAppStore((state) => state.playlists);
   const windowSize = useWindowSize();
 
   function toggleDropdown() {
@@ -42,7 +45,7 @@ export default function ActionMenu(props) {
       replaceExisting ? replaceExisting : false
     );
 
-    appContext.toggleTracksInPlaylist(playlistId, formData);
+    toggleTracksInPlaylist(playlistId, formData);
   }
 
   function addTracksToPlaylist(trackIds) {
@@ -61,7 +64,6 @@ export default function ActionMenu(props) {
 
   const tracks = props.tracks;
   const trackIds = tracks.map((track) => track.id);
-  const playlists = appContext.playlists;
 
   const favoritesPlaylist = playlists.find((playlist) => playlist.favorites);
   const favoritesIds = favoritesPlaylist.playlistTracks.map(

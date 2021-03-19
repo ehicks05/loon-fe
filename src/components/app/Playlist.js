@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import MediaItem from "../MediaItem";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
@@ -15,7 +15,14 @@ import {
   useUserStore,
   setSelectedContextMenuId,
 } from "../../common/UserContextProvider";
-import { AppContext } from "../../common/AppContextProvider";
+import {
+  useAppStore,
+  useTrackMap,
+  dragAndDrop,
+  clearPlaylist,
+  copyPlaylist,
+  getPlaylistById,
+} from "../../common/AppContextProvider";
 import useWindowSize from "../../hooks/useWindowSize";
 import useDebounce from "../../hooks/UseDebounce";
 
@@ -33,7 +40,8 @@ export default function Playlist(props) {
   const [redirectTo, setRedirectTo] = useState(null);
 
   const user = useUserStore((state) => state.user);
-  const appContext = useContext(AppContext);
+  const playlists = useAppStore((state) => state.playlists);
+  const trackMap = useTrackMap();
   const windowSize = useWindowSize();
   const windowSizeDebounced = useDebounce(windowSize, 250);
 
@@ -64,13 +72,11 @@ export default function Playlist(props) {
       if (props.match.path === "/playlists/:id")
         playlistId = props.match.params.id ? Number(props.match.params.id) : 0;
       if (props.match.path === "/favorites") {
-        const favorites = appContext.playlists.filter(
-          (playlist) => playlist.favorites
-        );
+        const favorites = playlists.filter((playlist) => playlist.favorites);
         playlistId = favorites && favorites.length > 0 ? favorites[0].id : 0;
       }
       if (props.match.path === "/queue") {
-        const queue = appContext.playlists.filter((playlist) => playlist.queue);
+        const queue = playlists.filter((playlist) => playlist.queue);
         playlistId = queue && queue.length > 0 ? queue[0].id : 0;
       }
 
@@ -97,23 +103,19 @@ export default function Playlist(props) {
     formData.append("playlistId", playlistId);
     formData.append("oldIndex", oldIndex);
     formData.append("newIndex", newIndex);
-    appContext.dragAndDrop(formData);
+    dragAndDrop(formData);
   }
 
   function saveAsPlaylist() {
-    const queueId = appContext.playlists.find((playlist) => playlist.queue).id;
+    const queueId = playlists.find((playlist) => playlist.queue).id;
 
     const formData = new FormData();
     formData.append("fromPlaylistId", queueId);
     formData.append("name", document.getElementById("playlistName").value);
 
-    appContext
-      .copyPlaylist(formData)
-      .then((data) => setRedirectTo("/playlists/" + data.id));
-  }
-
-  function clearPlaylist() {
-    appContext.clearPlaylist(playlistId);
+    copyPlaylist(formData).then((data) =>
+      setRedirectTo("/playlists/" + data.id)
+    );
   }
 
   function toggleSaveAsPlaylistForm() {
@@ -124,10 +126,9 @@ export default function Playlist(props) {
   if (redirectTo) return <Redirect to={redirectTo} />;
 
   const selectedTrackId = user.userState.selectedTrackId;
-  const playlist = appContext.getPlaylistById(playlistId);
+  const playlist = getPlaylistById(playlistId);
 
-  if (!appContext || !appContext.playlists || !playlist)
-    return <div>Loading...</div>;
+  if (!playlists || !playlist) return <div>Loading...</div>;
 
   const scrollToIndex = playlist.playlistTracks.indexOf(
     playlist.playlistTracks.find(
@@ -165,9 +166,9 @@ export default function Playlist(props) {
                         key,
                         style,
                         parent,
-                        playlistTracks: appContext
-                          .getPlaylistById(playlistId)
-                          .playlistTracks.slice(),
+                        playlistTracks: getPlaylistById(
+                          playlistId
+                        ).playlistTracks.slice(),
                       })
                     }
                     rowCount={playlist.playlistTracks.length}
@@ -226,7 +227,7 @@ export default function Playlist(props) {
   function renderRow({ index, key, style, parent, playlistTracks }) {
     // const playlistTrack = this.props.store.appState.getPlaylistById(this.state.playlistId).playlistTracks.find(track => track.index === index);
     const playlistTrack = playlistTracks[index];
-    const track = appContext.trackMap.get(playlistTrack.track.id);
+    const track = trackMap.get(playlistTrack.track.id);
 
     return (
       <Draggable
@@ -277,7 +278,7 @@ export default function Playlist(props) {
             <button
               className="button is-small is-danger"
               disabled={disabled}
-              onClick={clearPlaylist}
+              onClick={() => clearPlaylist(playlist.id)}
             >
               Clear
             </button>
@@ -323,10 +324,8 @@ export default function Playlist(props) {
   }
 
   function renderDraggingMediaItem(index, provided) {
-    const playlistTrack = appContext.getPlaylistById(playlistId).playlistTracks[
-      index
-    ];
-    const track = appContext.trackMap.get(playlistTrack.track.id);
+    const playlistTrack = getPlaylistById(playlistId).playlistTracks[index];
+    const track = trackMap.get(playlistTrack.track.id);
 
     return (
       <DraggingMediaItem

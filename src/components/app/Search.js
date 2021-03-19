@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MediaItem from "../MediaItem";
 import {
   AutoSizer,
@@ -8,7 +8,7 @@ import {
 } from "react-virtualized";
 import TextInput from "../TextInput";
 import { FaSearch } from "react-icons/fa";
-import { AppContext } from "../../common/AppContextProvider";
+import { useAppStore } from "../../common/AppContextProvider";
 import {
   useUserStore,
   setSelectedContextMenuId,
@@ -19,7 +19,7 @@ export default function Search() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchKey, setSearchKey] = useState("");
 
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const user = useUserStore((state) => state.user);
   const cache = useRef(
     new CellMeasurerCache({ fixedWidth: true, defaultHeight: 58 })
@@ -36,9 +36,9 @@ export default function Search() {
 
   useEffect(() => {
     const key = debouncedSearchKey.toLowerCase();
-    const tracks =
+    const filteredTracks =
       key.length > 0
-        ? appContext.tracks.filter((track) => {
+        ? tracks.filter((track) => {
             return (
               track.title.toLowerCase().includes(key) ||
               track.artist.toLowerCase().includes(key) ||
@@ -46,10 +46,10 @@ export default function Search() {
               track.album.toLowerCase().includes(key)
             );
           })
-        : appContext.tracks;
+        : tracks;
 
-    setSearchResults(tracks);
-  }, [appContext.tracks, debouncedSearchKey]);
+    setSearchResults(filteredTracks);
+  }, [tracks, debouncedSearchKey]);
 
   function handleSearchInput(e) {
     setSearchKey(e.target.value);

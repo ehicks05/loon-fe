@@ -1,24 +1,27 @@
-import React, { useContext } from "react";
+import React from "react";
 import Albums from "./Albums";
 import { ArtistCard } from "../ArtistCard";
-import { AppContext } from "../../common/AppContextProvider";
+import { useAppStore } from "../../common/AppContextProvider";
 import useWindowSize from "../../hooks/useWindowSize";
 import MediaItem from "../MediaItem";
+import _ from "lodash";
 
 export default function Artist(props) {
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const windowSize = useWindowSize();
 
-  if (!appContext || !appContext.tracks) return <div>Loading...</div>;
+  if (!tracks) return <div>Loading...</div>;
 
   const artistParam = props.match.params.artist;
 
-  const artistTracks = appContext.tracks
+  const artistTracks = _.chain(tracks)
     .filter((track) => track.artist === artistParam)
-    .sort(sortByAlbumThenDiscNumberThenTrackNumber);
-  const artistName = artistTracks[0].artist;
-  const artistImageId = artistTracks[0].artistImageId;
-  const artist = { artistName: artistName, artistImageId: artistImageId };
+    .sortBy(["album", "discNumber", "trackNumber"]);
+
+  const artist = {
+    artistName: artistTracks[0].artist,
+    artistImageId: artistTracks[0].artistImageId,
+  };
 
   const maxWidth = windowSize.width > 768 ? "100%" : "500px";
 
@@ -77,14 +80,4 @@ export default function Artist(props) {
       </section>
     </div>
   );
-}
-
-function sortByAlbumThenDiscNumberThenTrackNumber(o1, o2) {
-  if (o1.album < o2.album) return -1;
-  if (o1.album > o2.album) return 1;
-  if (o1.discNumber < o2.discNumber) return -1;
-  if (o1.discNumber > o2.discNumber) return 1;
-  if (o1.trackNumber < o2.trackNumber) return -1;
-  if (o1.trackNumber > o2.trackNumber) return 1;
-  return 0;
 }

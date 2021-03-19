@@ -1,29 +1,24 @@
-import React, { useContext } from "react";
+import React from "react";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
 import { ArtistCard } from "../ArtistCard";
-import { AppContext } from "../../common/AppContextProvider";
+import { useAppStore } from "../../common/AppContextProvider";
 import useWindowSize from "../../hooks/useWindowSize";
+import _ from "lodash";
 
 export default function Artists() {
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const windowSize = useWindowSize();
 
-  const tracks = appContext.tracks;
+  const artists = _.chain(tracks)
+    .map((track) => ({
+      artistName: track.artist,
+      artistImageId: track.artistThumbnailId,
+    }))
+    .uniqBy((artist) => artist.artistName)
+    .value();
 
-  const artists = [
-    ...new Set(
-      tracks.map((track) => {
-        return JSON.stringify({
-          artistName: track.artist,
-          artistImageId: track.artistThumbnailId,
-        });
-      })
-    ),
-  ];
-
-  const artistItems = artists.map((artistJson) => {
-    const artist = JSON.parse(artistJson);
+  const artistItems = artists.map((artist) => {
     return <ArtistCard key={artist.artistName} artist={artist} />;
   });
 

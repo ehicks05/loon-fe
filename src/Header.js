@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaServer,
@@ -12,11 +12,11 @@ import {
 import superFetch from "./common/SuperFetch";
 import { useMediaQuery } from "./hooks/useMediaQuery";
 import { useUserStore } from "./common/UserContextProvider";
-import { AppContext } from "./common/AppContextProvider";
+import { useAppStore } from "./common/AppContextProvider";
 
 export default function Header() {
   const user = useUserStore((state) => state.user);
-  const appContext = useContext(AppContext);
+  const playlists = useAppStore((state) => state.playlists);
 
   useEffect(() => {
     // Get all "navbar-burger" elements
@@ -94,7 +94,7 @@ export default function Header() {
   }
 
   const isAdmin = user.admin;
-  const playlists = appContext.playlists
+  const customPlaylists = playlists
     .filter((playlist) => !playlist.favorites && !playlist.queue)
     .map((playlist) => {
       return playlistToNavLink(playlist);
@@ -167,7 +167,7 @@ export default function Header() {
           >
             Albums
           </NavLink>
-          {playlists.length === 0 && (
+          {customPlaylists.length === 0 && (
             <NavLink
               to="/playlists"
               activeClassName="is-active"
@@ -176,7 +176,7 @@ export default function Header() {
               Playlists
             </NavLink>
           )}
-          {playlists.length !== 0 && (
+          {customPlaylists.length !== 0 && (
             <div className={"navbar-item has-dropdown is-hoverable"}>
               <NavLink
                 to="/playlists"
@@ -185,7 +185,7 @@ export default function Header() {
               >
                 Playlists
               </NavLink>
-              <div className="navbar-dropdown">{playlists}</div>
+              <div className="navbar-dropdown">{customPlaylists}</div>
             </div>
           )}
 

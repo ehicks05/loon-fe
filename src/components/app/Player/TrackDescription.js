@@ -1,10 +1,11 @@
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import { Link } from "react-router-dom";
-import React, { useContext } from "react";
-import { AppContext } from "../../../common/AppContextProvider";
+import React from "react";
+import { useAppStore, getTrackById } from "../../../common/AppContextProvider";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
 import { useUserStore } from "../../../common/UserContextProvider";
+import { PLACEHOLDER_IMAGE_URL, getImageUrl } from "components/utils";
 
 const albumArtStyle = { height: "48px", margin: "0", paddingRight: "8px" };
 // const trackStyle = {maxWidth: textWidth, maxHeight: '48px', overflow: 'auto'};
@@ -12,13 +13,11 @@ const artistAlbumTextStyle = { fontSize: ".875rem" };
 
 export default function TrackDescription() {
   const user = useUserStore((state) => state.user);
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const isWidthOver768 = useMediaQuery("(min-width: 768px)");
 
   function getSelectedTrack() {
-    return appContext.tracks && typeof appContext.tracks === "object"
-      ? appContext.getTrackById(user.userState.selectedTrackId)
-      : null;
+    return tracks ? getTrackById(user.userState.selectedTrackId) : null;
   }
 
   const selectedTrack = getSelectedTrack();
@@ -30,18 +29,14 @@ export default function TrackDescription() {
 
   const textWidth = isWidthOver768 ? "calc(100vw - 408px)" : "100%";
 
-  const placeholder = `https://images.unsplash.com/photo-1609667083964-f3dbecb7e7a5?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=48&q=80`;
-  const imageUrl =
-    selectedTrack && selectedTrack.albumThumbnailId
-      ? `https://res.cloudinary.com/ehicks/image/upload/${selectedTrack.albumThumbnailId}`
-      : placeholder;
+  const imageUrl = getImageUrl(selectedTrack?.albumThumbnailId);
 
   // todo: does this need to be lazyload?
   const albumArt = (
     <img
-      src={placeholder}
+      src={PLACEHOLDER_IMAGE_URL}
       data-src={imageUrl}
-      alt="Placeholder image"
+      alt="Placeholder"
       className="lazyload"
       style={albumArtStyle}
     />

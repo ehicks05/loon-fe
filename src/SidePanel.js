@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaSearch,
@@ -10,16 +10,15 @@ import {
   FaCompactDisc,
   FaVolumeUp,
 } from "react-icons/fa";
-import { AppContext } from "./common/AppContextProvider";
+import { useAppStore } from "./common/AppContextProvider";
 import { useUserStore } from "./common/UserContextProvider";
 
 export default function SidePanel() {
-  const appContext = useContext(AppContext);
+  const playlists = useAppStore((state) => state.playlists);
   const user = useUserStore((state) => state.user);
   const selectedPlaylistId = user.userState.selectedPlaylistId;
 
-  if (!appContext || !appContext.playlists || !user)
-    return <div>Loading...</div>;
+  if (!playlists || !user) return <div>Loading...</div>;
 
   const defaultLinks = [
     {
@@ -34,15 +33,14 @@ export default function SidePanel() {
       text: "Favorites",
       currentlyPlaying:
         selectedPlaylistId ===
-        appContext.playlists.find((playlist) => playlist.favorites).id,
+        playlists.find((playlist) => playlist.favorites).id,
     },
     {
       path: "/queue",
       icon: <FaList />,
       text: "Queue",
       currentlyPlaying:
-        selectedPlaylistId ===
-        appContext.playlists.find((playlist) => playlist.queue).id,
+        selectedPlaylistId === playlists.find((playlist) => playlist.queue).id,
     },
     { path: "/artists", icon: <FaUsers />, text: "Artists" },
     { path: "/albums", icon: <FaCompactDisc />, text: "Albums" },
@@ -51,7 +49,7 @@ export default function SidePanel() {
 
   const links = defaultLinks.map((link) => linkToNavLink(link));
 
-  let playlists = appContext.playlists
+  let playlistLinks = playlists
     .filter((playlist) => !playlist.favorites && !playlist.queue)
     .map((playlist) => playlistToLink(playlist))
     .map((link) => linkToNavLink(link));
@@ -94,7 +92,7 @@ export default function SidePanel() {
   return (
     <nav className={"panel"} style={{ maxWidth: "250px" }}>
       {links}
-      {playlists}
+      {playlistLinks}
     </nav>
   );
 }

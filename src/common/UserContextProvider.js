@@ -47,6 +47,11 @@ export const setShuffle = async (shuffle) => {
   formData.append("shuffle", shuffle);
   updateUser(useUserStore.getState().user.id, formData);
 };
+export const setVolume = async (volume) => {
+  const formData = new FormData();
+  formData.append("volume", volume);
+  updateUser(useUserStore.getState().user.id, formData);
+};
 export const setTranscode = async (transcode) => {
   const formData = new FormData();
   formData.append("transcode", transcode);

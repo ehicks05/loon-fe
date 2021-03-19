@@ -1,9 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   useUserStore,
   setSelectedTrackId,
 } from "../../../common/UserContextProvider";
-import { AppContext } from "../../../common/AppContextProvider";
+import {
+  useAppStore,
+  getPlaylistById,
+} from "../../../common/AppContextProvider";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import { FaPause, FaPlay, FaStepBackward, FaStepForward } from "react-icons/fa";
 
@@ -13,7 +16,7 @@ const nextButtonStyle = { height: "36px", width: "36px" };
 
 export default function PlaybackButtons(props) {
   const user = useUserStore((state) => state.user);
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const isWidthOver768 = useMediaQuery("(min-width: 768px)");
 
   function handlePlayerStateChange(e, newState) {
@@ -26,14 +29,12 @@ export default function PlaybackButtons(props) {
   }
 
   function getCurrentPlaylistTrackIds() {
-    const currentPlaylist = appContext.getPlaylistById(
-      user.userState.selectedPlaylistId
-    );
+    const currentPlaylist = getPlaylistById(user.userState.selectedPlaylistId);
     if (currentPlaylist)
       return currentPlaylist.playlistTracks.map(
         (playlistTrack) => playlistTrack.track.id
       );
-    else return appContext.tracks.map((track) => track.id);
+    else return tracks.map((track) => track.id);
   }
 
   function getNewTrackId(input) {
@@ -78,7 +79,6 @@ export default function PlaybackButtons(props) {
   const prevButton = (
     <a
       className="button"
-      id="prevBtn"
       style={prevButtonStyle}
       onClick={(e) => handleTrackChange(e, "prev")}
     >
@@ -91,7 +91,6 @@ export default function PlaybackButtons(props) {
   const playButton = (
     <a
       className="button is-medium"
-      id="pauseBtn"
       style={pauseButtonStyle}
       onClick={(e) =>
         handlePlayerStateChange(
@@ -109,7 +108,6 @@ export default function PlaybackButtons(props) {
   const nextButton = (
     <a
       className="button"
-      id="nextBtn"
       style={nextButtonStyle}
       onClick={(e) => handleTrackChange(e, "next")}
     >

@@ -1,209 +1,103 @@
-import React, { useEffect, useState } from "react";
-import superFetch from "./SuperFetch";
+import _ from "lodash";
+import create from "zustand";
 
-const AppContext = React.createContext();
+const tracksBaseUrl = "/api/library/";
+const playlistBaseUrl = "/api/playlists/";
 
-function AppContextProvider(props) {
-  const [tracks, setTracks] = useState(null);
-  const [trackMap, setTrackMap] = useState(null);
-  const [playlists, setPlaylists] = useState(null);
-  const [distinctArtists, setDistinctArtists] = useState(null);
+export const useAppStore = create(() => ({
+  tracks: null,
+  playlists: null,
+}));
 
-  useEffect(() => {
-    loadTracks();
-    loadPlaylists();
-  }, []);
+export const useTrackMap = () => {
+  return useAppStore((state) => _.keyBy(state.tracks, "id"));
+};
 
-  useEffect(() => {
-    if (!tracks) return;
+export const useDistinctArtists = () => {
+  return useAppStore((state) => _.uniq(_.map(state.tracks, "artist")));
+};
 
-    const tMap = new Map();
-    tracks.forEach((track) => {
-      tMap.set(track.id, track);
+export const fetchTracks = async () => {
+  const response = await fetch(tracksBaseUrl);
+  useAppStore.setState({ tracks: await response.json() });
+};
+
+export const fetchPlaylists = async () => {
+  const response = await fetch(playlistBaseUrl + "/getPlaylists");
+  useAppStore.setState({ playlists: await response.json() });
+};
+
+export const upsertPlaylist = async (formData) => {
+  await fetch(playlistBaseUrl + "/addOrModify", {
+    method: "POST",
+    body: formData,
+  });
+  fetchPlaylists();
+};
+
+export const toggleTracksInPlaylist = async (playlistId, formData) => {
+  await fetch(playlistBaseUrl + playlistId, {
+    method: "POST",
+    body: formData,
+  });
+  fetchPlaylists();
+};
+
+export const copyPlaylist = async (formData) => {
+  const id = await fetch(playlistBaseUrl + "copyFrom", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      return data;
     });
-    setTrackMap(tMap);
+  fetchPlaylists();
+  return id;
+};
 
-    const artists = tracks.map((track) => track.artist);
-    setDistinctArtists([...new Set(artists)]);
-  }, [tracks]);
+export const deletePlaylist = async (playlistId) => {
+  await fetch(playlistBaseUrl + playlistId, { method: "DELETE" });
+  fetchPlaylists();
+};
 
-  function loadTracks() {
-    return fetch("/api/library", { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => setTracks(data));
-  }
+export const clearPlaylist = async (playlistId) => {
+  const formData = new FormData();
+  formData.append("mode", "");
+  formData.append("replaceExisting", true);
+  formData.append("trackIds", []);
+  await fetch(playlistBaseUrl + playlistId, { method: "POST", body: formData });
+  fetchPlaylists();
+};
 
-  function loadPlaylists() {
-    function sort(playlist) {
-      playlist.playlistTracks.sort((o1, o2) => {
-        if (o1.index === o2.index) return 0;
-        if (o1.index < o2.index) return -1;
-        if (o1.index > o2.index) return 1;
-      });
-    }
+export const getTrackById = (id) => {
+  return useAppStore.getState().tracks.find((t) => t.id === id);
+};
 
-    fetch("/api/playlists/getPlaylists", { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => {
-        data.forEach((playlist) => sort(playlist));
-        setPlaylists(data);
-      });
-  }
+export const getPlaylistById = (id) => {
+  return useAppStore.getState().playlists.find((p) => p.id === id);
+};
 
-  function addOrModifyPlaylist(formData) {
-    return superFetch("/api/playlists/addOrModify", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then(() => {
-        loadPlaylists();
-      });
-  }
+// Update indices locally for quick render, later backend will return authoritative results.
+export const dragAndDrop = async (formData) => {
+  const oldIndex = Number(formData.get("oldIndex"));
+  const newIndex = Number(formData.get("newIndex"));
+  const playlistId = Number(formData.get("playlistId"));
 
-  function toggleTracksInPlaylist(playlistId, formData) {
-    return superFetch("/api/playlists/" + playlistId, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.text())
-      .then(() => {
-        loadPlaylists();
-      });
-  }
-
-  function copyPlaylist(formData) {
-    return superFetch("/api/playlists/copyFrom", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        loadPlaylists();
-        return data;
-      });
-  }
-
-  function deletePlaylist(playlistId) {
-    return superFetch("/api/playlists/" + playlistId, { method: "DELETE" })
-      .then((response) => response.text())
-      .then(() => {
-        loadPlaylists();
-      });
-  }
-
-  // This will will update the playlist indices locally so the change can be rendered immediately,
-  // then request the backend to do the same logic and return the updated playlist data back to the client.
-  // This data should be identical to the updates we made locally, but in case anything goes wrong
-  // the backend will be our source of truth.
-  function dragAndDrop(formData) {
-    const oldIndex = Number(formData.get("oldIndex"));
-    const newIndex = Number(formData.get("newIndex"));
-    const low = Math.min(oldIndex, newIndex);
-    const high = Math.max(oldIndex, newIndex);
-    const adjustBy = newIndex < oldIndex ? 1 : -1;
-    const playlistId = Number(formData.get("playlistId"));
-
-    const playlistIndex = playlists.findIndex(
-      (playlist) => playlist.id === playlistId
-    );
-    const playlist = playlists[playlistIndex];
-
-    let updatedTracks = playlist.playlistTracks.slice();
-    updatedTracks.forEach((playlistTrack) => {
-      if (playlistTrack.index >= low && playlistTrack.index <= high) {
-        playlistTrack.index =
-          playlistTrack.index === oldIndex
-            ? newIndex
-            : playlistTrack.index + adjustBy;
-      }
-    });
-
-    updatedTracks = updatedTracks.sort((o1, o2) => {
-      if (o1.index === o2.index) return 0;
-      if (o1.index < o2.index) return -1;
-      if (o1.index > o2.index) return 1;
-    });
-
-    playlist.playlistTracks = updatedTracks;
-
-    superFetch("/api/playlists/dragAndDrop", { method: "POST", body: formData })
-      .then((response) => response.text())
-      .then(() => {
-        loadPlaylists();
-      });
-  }
-
-  function dragAndDrop2(formData) {
-    const oldIndex = Number(formData.get("oldIndex"));
-    const newIndex = Number(formData.get("newIndex"));
-    const playlistId = Number(formData.get("playlistId"));
-    
-    const playlist = playlists.find((playlist) => playlist.id === playlistId);
-    const tracks = [...playlist.playlistTracks];
-    const track = tracks[oldIndex];
-    tracks.splice(oldIndex, 1);
-    tracks.splice(newIndex, 0, track);
-    tracks.forEach((track, i) => (track.index = i));
-
-    playlist.playlistTracks = tracks;
-
-    superFetch("/api/playlists/dragAndDrop", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.text())
-      .then(() => {
-        loadPlaylists();
-      });
-  }
-
-  function clearPlaylist(playlistId) {
-    const formData = new FormData();
-    formData.append("mode", "");
-    formData.append("replaceExisting", true);
-    formData.append("trackIds", []);
-
-    return superFetch("/api/playlists/" + playlistId, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then(() => {
-        loadPlaylists();
-      });
-  }
-
-  function getTrackById(id) {
-    return tracks.find((it) => it.id === id);
-  }
-
-  function getPlaylistById(id) {
-    return playlists.find((it) => it.id === id);
-  }
-
-  return (
-    <AppContext.Provider
-      value={{
-        tracks: tracks,
-        trackMap: trackMap,
-        playlists: playlists,
-        distinctArtists: distinctArtists,
-        loadTracks: loadTracks,
-        loadPlaylists: loadPlaylists,
-        addOrModifyPlaylist: addOrModifyPlaylist,
-        toggleTracksInPlaylist: toggleTracksInPlaylist,
-        copyPlaylist: copyPlaylist,
-        deletePlaylist: deletePlaylist,
-        dragAndDrop: dragAndDrop,
-        clearPlaylist: clearPlaylist,
-        getTrackById: getTrackById,
-        getPlaylistById: getPlaylistById,
-      }}
-    >
-      {props.children}
-    </AppContext.Provider>
+  const [playlist, playlists] = _.partition(
+    useAppStore.getState().playlists,
+    (p) => p.id === playlistId
   );
-}
 
-export { AppContext, AppContextProvider };
+  const tracks = [...playlist.playlistTracks];
+  const track = tracks[oldIndex];
+  tracks.splice(oldIndex, 1);
+  tracks.splice(newIndex, 0, track);
+  tracks.forEach((track, i) => (track.index = i));
+
+  playlist.playlistTracks = tracks;
+  useAppStore.setState({ ...playlists, playlist });
+
+  await fetch("/api/playlists/dragAndDrop", { method: "POST", body: formData });
+  fetchPlaylists();
+};

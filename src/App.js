@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Router } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import "bulma/css/bulma.min.css";
@@ -7,8 +7,13 @@ import Header from "./Header";
 import MyHelmet from "./MyHelmet";
 import Player from "./components/app/Player/Player";
 import Routes from "./Routes";
-import { useUserStore } from "./common/UserContextProvider";
-import { AppContext } from "./common/AppContextProvider";
+import { useUserStore, fetchUser } from "./common/UserContextProvider";
+import {
+  useAppStore,
+  getTrackById,
+  fetchTracks,
+  fetchPlaylists,
+} from "./common/AppContextProvider";
 import { useWindowSize } from "react-use";
 import LoginForm from "./LoginForm";
 
@@ -21,10 +26,18 @@ export default function App() {
   const [columnHeight, setColumnHeight] = useState("");
 
   const user = useUserStore((state) => state.user);
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
+  const playlists = useAppStore((state) => state.playlists);
   const { width, height } = useWindowSize();
 
   useEffect(() => {
+    const fetchData = async () => {
+      await fetchUser();
+      await fetchTracks();
+      await fetchPlaylists();
+    };
+    fetchData();
+
     const pollIntervalId = setInterval(function () {
       fetch("/api/poll", { method: "GET" })
         .then((response) => response.text())
@@ -47,13 +60,8 @@ export default function App() {
 
   useEffect(() => {
     function getSelectedTrack() {
-      const ready =
-        user?.userState?.selectedTrackId &&
-        appContext.tracks &&
-        typeof appContext.tracks === "object";
-      return ready
-        ? appContext.getTrackById(user.userState.selectedTrackId)
-        : null;
+      const ready = user?.userState?.selectedTrackId && tracks;
+      return ready ? getTrackById(user.userState.selectedTrackId) : null;
     }
 
     const selectedTrack = getSelectedTrack();
@@ -61,14 +69,17 @@ export default function App() {
       ? selectedTrack.title + " by " + selectedTrack.artist
       : "Loon";
     window.document.title = title;
-  }, [appContext, user?.userState?.selectedTrackId]);
+  }, [tracks, user?.userState?.selectedTrackId]);
 
+  console.dir(user);
   if (!user) return <LoginForm />;
 
-  console.log(user);
+  console.dir(user);
+  console.dir(tracks);
+  console.dir(playlists);
 
-  const dataLoaded = user && appContext?.tracks && appContext?.playlists;
-  if (!dataLoaded) {
+  const loaded = user && tracks && playlists;
+  if (!loaded) {
     const style = {
       width: "100vw",
       height: "100vh",

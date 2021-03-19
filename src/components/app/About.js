@@ -1,17 +1,12 @@
-import React, { useContext } from "react";
-import { AppContext } from "../../common/AppContextProvider";
+import React from "react";
+import { useAppStore } from "../../common/AppContextProvider";
 import { useUserStore } from "../../common/UserContextProvider";
 
 export default function About() {
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const user = useUserStore((state) => state.user);
-  function getSelectedTrack() {
-    return appContext.tracks && typeof appContext.tracks === "object"
-      ? appContext.tracks.find(
-          (track) => track.id === user.userState.selectedTrackId
-        )
-      : null;
-  }
+  const getSelectedTrack = () =>
+    tracks.find((track) => track.id === user.userState.selectedTrackId);
 
   const selectedTrack = getSelectedTrack();
 

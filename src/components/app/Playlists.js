@@ -1,17 +1,17 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { AppContext } from "../../common/AppContextProvider";
+import { useAppStore, deletePlaylist } from "../../common/AppContextProvider";
 import { useUserStore } from "../../common/UserContextProvider";
 
 export default function Playlists() {
-  const appContext = useContext(AppContext);
+  const playlists = useAppStore((state) => state.playlists);
   const user = useUserStore((state) => state.user);
-  function deletePlaylist(playlistId) {
+  function handleDeletePlaylist(playlistId) {
     if (window.confirm("Do you really want to delete this playlist?"))
-      return appContext.deletePlaylist(playlistId);
+      return deletePlaylist(playlistId);
   }
 
-  const playlists = appContext.playlists
+  const playlistItems = playlists
     .filter((playlist) => !playlist.favorites && !playlist.queue)
     .map((playlist, index) => {
       const highlightClass =
@@ -39,7 +39,7 @@ export default function Playlists() {
 
               <button
                 className={"button is-small is-danger"}
-                onClick={() => deletePlaylist(playlist.id)}
+                onClick={() => handleDeletePlaylist(playlist.id)}
               >
                 Delete
               </button>
@@ -64,7 +64,7 @@ export default function Playlists() {
               <td className={"has-text-right"}>Tracks</td>
               <td> </td>
             </tr>
-            {playlists}
+            {playlistItems}
           </tbody>
         </table>
         <Link className={"button is-primary"} to={"/playlists/new"}>

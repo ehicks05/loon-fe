@@ -1,36 +1,31 @@
-import React, { useContext } from "react";
+import React from "react";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
-import { AppContext } from "../../common/AppContextProvider";
+import { useAppStore } from "../../common/AppContextProvider";
 import useWindowSize from "../../hooks/useWindowSize";
 import AlbumCard from "../AlbumCard";
+import _ from "lodash";
 
 export default function Albums(props) {
-  const appContext = useContext(AppContext);
+  let tracks = useAppStore((state) => state.tracks);
   const windowSize = useWindowSize();
 
-  let tracks = appContext.tracks;
   if (props.tracks) tracks = props.tracks;
 
   const hideTitle = props.hideTitle;
   const hideAlbumArtist = props.hideAlbumArtist;
 
-  let albums = [
-    ...new Set(
-      tracks.map((track) => {
-        return JSON.stringify({
-          albumArtist: track.albumArtist,
-          album: track.album,
-          albumImageId: track.albumThumbnailId,
-        });
-      })
-    ),
-  ];
-  albums = albums.map((album) => JSON.parse(album));
-  albums = albums.sort(sortByAlbumArtistThenAlbum);
+  const albums = _.chain(tracks)
+    .map((track) => ({
+      albumArtist: track.albumArtist,
+      album: track.album,
+      albumImageId: track.albumThumbnailId,
+    }))
+    .uniqBy((track) => ({ albumArtist: track.albumArtist, album: track.album }))
+    .sortBy(["albumArtist", "album"])
+    .value();
 
   const albumItems = albums.map((album) => {
-    // const album = JSON.parse(albumJson);
     return (
       <AlbumCard
         key={album.albumArtist + "-" + album.album}
@@ -79,12 +74,4 @@ export default function Albums(props) {
       </div>
     </div>
   );
-}
-
-function sortByAlbumArtistThenAlbum(a1, a2) {
-  if (a1.albumArtist.toLowerCase() < a2.albumArtist.toLowerCase()) return -1;
-  if (a1.albumArtist.toLowerCase() > a2.albumArtist.toLowerCase()) return 1;
-  if (a1.album.toLowerCase() < a2.album.toLowerCase()) return -1;
-  if (a1.album.toLowerCase() > a2.album.toLowerCase()) return 1;
-  return 0;
 }

@@ -1,31 +1,25 @@
-import React, { useContext } from "react";
+import React from "react";
 import MediaItem from "../MediaItem";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
-import { AppContext } from "../../common/AppContextProvider";
+import { useAppStore } from "../../common/AppContextProvider";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import AlbumCard from "../AlbumCard";
+import _ from "lodash";
 
 export default function Album(props) {
   const artist = props.match.params.artist;
   const album = props.match.params.album;
 
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const maxWidth = useMediaQuery("(min-width: 768px)") ? "100%" : "500px";
 
-  if (!appContext || !appContext.tracks) return <div>Loading...</div>;
+  if (!tracks) return <div>Loading...</div>;
 
-  const albumTracks = appContext.tracks
+  const albumTracks = _.chain(tracks)
     .filter((track) => track.albumArtist === artist && track.album === album)
-    .sort((o1, o2) => {
-      if (o1.discNumber === o2.discNumber) {
-        if (o1.trackNumber < o2.trackNumber) return -1;
-        if (o1.trackNumber > o2.trackNumber) return 1;
-        return 0;
-      }
-      if (o1.discNumber < o2.discNumber) return -1;
-      if (o1.discNumber > o2.discNumber) return 1;
-    });
+    .sortBy(["discNumber", "trackNumber"])
+    .value();
 
   const mediaItems = albumTracks.map((track) => {
     return (

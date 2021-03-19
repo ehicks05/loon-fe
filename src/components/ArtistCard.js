@@ -1,14 +1,15 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import ActionMenu from "./ActionMenu";
 import { Link } from "react-router-dom";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
-import { AppContext } from "../common/AppContextProvider";
+import { useAppStore } from "../common/AppContextProvider";
 import { useUserStore } from "../common/UserContextProvider";
+import { PLACEHOLDER_IMAGE_URL, getImageUrl } from "./utils";
 
 export function ArtistCard(props) {
   const [hover, setHover] = useState(false);
-  const appContext = useContext(AppContext);
+  const tracks = useAppStore((state) => state.tracks);
   const selectedContextMenuId = useUserStore(
     (state) => state.selectedContextMenuId
   );
@@ -21,17 +22,14 @@ export function ArtistCard(props) {
   }
 
   const artist = props.artist;
-  const placeholder = `https://images.unsplash.com/photo-1609667083964-f3dbecb7e7a5?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80`;
-  const imageUrl = artist.artistImageId
-    ? `https://res.cloudinary.com/ehicks/image/upload/${artist.artistImageId}`
-    : placeholder;
+  const imageUrl = getImageUrl(artist.artistImageId);
 
   const contextMenuId = "artist=" + artist.artistName;
   const isContextMenuSelected = selectedContextMenuId === contextMenuId;
 
   const showActionMenu = hover || isContextMenuSelected;
-  const tracks = showActionMenu
-    ? appContext.tracks.filter((track) => track.artist === artist.artistName)
+  const actionMenuTracks = showActionMenu
+    ? tracks.filter((track) => track.artist === artist.artistName)
     : [];
 
   return (
@@ -43,14 +41,14 @@ export function ArtistCard(props) {
       <div className="card-image">
         <figure className={"image is-square"}>
           <img
-            src={placeholder}
+            src={PLACEHOLDER_IMAGE_URL}
             data-src={imageUrl}
-            alt="Placeholder image"
+            alt="Placeholder"
             className="lazyload"
           />
           {showActionMenu && (
             <ActionMenu
-              tracks={tracks}
+              tracks={actionMenuTracks}
               contextMenuId={contextMenuId}
               style={{ position: "absolute", top: "8px", right: "8px" }}
             />
