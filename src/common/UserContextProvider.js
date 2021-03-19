@@ -10,8 +10,12 @@ export const useUserStore = create(() => ({
 export const setUser = (user) => useUserStore.setState({ user: user });
 
 export const fetchUser = async () => {
-  const response = await fetch("/api/users/current");
-  useUserStore.setState({ user: await response.json() });
+  try {
+    const response = await fetch("/api/users/current");
+    useUserStore.setState({ user: await response.json() });
+  } catch (err) {
+    useUserStore.setState({ user: { err } });
+  }
 };
 export const updateUser = async (url, formData) => {
   await fetch(baseUrl + url, { method: "PUT", body: formData });
@@ -48,6 +52,10 @@ export const setShuffle = async (shuffle) => {
   updateUser(useUserStore.getState().user.id, formData);
 };
 export const setVolume = async (volume) => {
+  const user = useUserStore.getState().user;
+  useUserStore.setState({
+    user: { ...user, userState: { ...user.userState, volume } },
+  });
   const formData = new FormData();
   formData.append("volume", volume);
   updateUser(useUserStore.getState().user.id, formData);

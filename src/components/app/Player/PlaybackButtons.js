@@ -7,7 +7,7 @@ import {
   useAppStore,
   getPlaylistById,
 } from "../../../common/AppContextProvider";
-import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import { useWindowSize } from "react-use";
 import { FaPause, FaPlay, FaStepBackward, FaStepForward } from "react-icons/fa";
 
 const prevButtonStyle = { height: "36px", width: "36px" };
@@ -17,7 +17,7 @@ const nextButtonStyle = { height: "36px", width: "36px" };
 export default function PlaybackButtons(props) {
   const user = useUserStore((state) => state.user);
   const tracks = useAppStore((state) => state.tracks);
-  const isWidthOver768 = useMediaQuery("(min-width: 768px)");
+  const { width } = useWindowSize();
 
   function handlePlayerStateChange(e, newState) {
     props.onPlayerStateChange(newState);
@@ -122,7 +122,7 @@ export default function PlaybackButtons(props) {
       {prevButton}
       {playButton}
       {nextButton}
-      {isWidthOver768 && <span style={{ paddingLeft: "8px" }}> </span>}
+      {width >= 768 && <span style={{ paddingLeft: "8px" }}> </span>}
     </>
   );
 }

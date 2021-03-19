@@ -3,7 +3,7 @@ import MediaItem from "../MediaItem";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
 import { useAppStore } from "../../common/AppContextProvider";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useWindowSize } from "react-use";
 import AlbumCard from "../AlbumCard";
 import _ from "lodash";
 
@@ -12,7 +12,7 @@ export default function Album(props) {
   const album = props.match.params.album;
 
   const tracks = useAppStore((state) => state.tracks);
-  const maxWidth = useMediaQuery("(min-width: 768px)") ? "100%" : "500px";
+  const maxWidth = useWindowSize().width >= 768 ? "100%" : "500px";
 
   if (!tracks) return <div>Loading...</div>;
 

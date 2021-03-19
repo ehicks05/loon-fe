@@ -10,14 +10,15 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import superFetch from "./common/SuperFetch";
-import { useMediaQuery } from "./hooks/useMediaQuery";
 import { useUserStore } from "./common/UserContextProvider";
 import { useAppStore } from "./common/AppContextProvider";
+import { useWindowSize } from "react-use";
 
 export default function Header() {
   const user = useUserStore((state) => state.user);
   const playlists = useAppStore((state) => state.playlists);
   const [isActive, setIsActive] = useState(false);
+  const { width } = useWindowSize();
 
   const handleClickNavbarItem = (e) => {
     setIsActive(!isActive);
@@ -55,12 +56,9 @@ export default function Header() {
       return playlistToNavLink(playlist);
     });
 
-  const isLessThan1024Width = useMediaQuery("(max-width: 1024px)");
-
   // helps with issue where nav menu was not scrollable on mobile and items at the bottom were inaccessible.
-  const navbarMenuStyle = isLessThan1024Width
-    ? { overflowY: "auto", height: "calc(100vh - 52px)" }
-    : null;
+  const navbarMenuStyle =
+    width < 1024 ? { overflowY: "auto", height: "calc(100vh - 52px)" } : null;
 
   return (
     <nav

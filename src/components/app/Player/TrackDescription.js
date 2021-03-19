@@ -1,4 +1,3 @@
-import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAppStore, getTrackById } from "../../../common/AppContextProvider";
@@ -6,6 +5,7 @@ import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
 import { useUserStore } from "../../../common/UserContextProvider";
 import { PLACEHOLDER_IMAGE_URL, getImageUrl } from "components/utils";
+import { useWindowSize } from "react-use";
 
 const albumArtStyle = { height: "48px", margin: "0", paddingRight: "8px" };
 // const trackStyle = {maxWidth: textWidth, maxHeight: '48px', overflow: 'auto'};
@@ -14,7 +14,7 @@ const artistAlbumTextStyle = { fontSize: ".875rem" };
 export default function TrackDescription() {
   const user = useUserStore((state) => state.user);
   const tracks = useAppStore((state) => state.tracks);
-  const isWidthOver768 = useMediaQuery("(min-width: 768px)");
+  const { width } = useWindowSize();
 
   function getSelectedTrack() {
     return tracks ? getTrackById(user.userState.selectedTrackId) : null;
@@ -27,7 +27,7 @@ export default function TrackDescription() {
   const album = selectedTrack ? selectedTrack.album : "";
   const title = selectedTrack ? selectedTrack.title : "";
 
-  const textWidth = isWidthOver768 ? "calc(100vw - 408px)" : "100%";
+  const textWidth = width >= 768 ? "calc(100vw - 408px)" : "100%";
 
   const imageUrl = getImageUrl(selectedTrack?.albumThumbnailId);
 

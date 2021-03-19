@@ -5,7 +5,7 @@ import {
   setShuffle,
   setMuted,
 } from "../../../common/UserContextProvider";
-import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import { useWindowSize } from "react-use";
 import TrackProgressBar from "./TrackProgressBar";
 import TrackDescription from "./TrackDescription";
 import PlaybackButtons from "./PlaybackButtons";
@@ -27,7 +27,7 @@ const myLevel2Style = {
 };
 
 export default function PlaybackControls(props) {
-  const isWidthOver768 = useMediaQuery("(min-width: 768px)");
+  const isWidthOver768 = useWindowSize().width >= 768;
 
   const playbackButtons = (
     <PlaybackButtons

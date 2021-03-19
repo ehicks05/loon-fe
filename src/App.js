@@ -32,9 +32,11 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetchUser();
-      await fetchTracks();
-      await fetchPlaylists();
+      if (!user || user.err) await fetchUser();
+      if (user && !user.err) {
+        await fetchTracks();
+        await fetchPlaylists();
+      }
     };
     fetchData();
 
@@ -47,7 +49,7 @@ export default function App() {
     return function cleanup() {
       clearInterval(pollIntervalId);
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const headerHeight = 52;
@@ -72,7 +74,7 @@ export default function App() {
   }, [tracks, user?.userState?.selectedTrackId]);
 
   console.dir(user);
-  if (!user) return <LoginForm />;
+  if (user?.err) return <LoginForm />;
 
   console.dir(user);
   console.dir(tracks);
