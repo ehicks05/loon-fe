@@ -119,11 +119,11 @@ export default function ActionMenu(props) {
     <form>
       <div className="field has-addons">
         <div className="control">
-          <a className="button is-static is-small">
+          <button className="button is-static is-small">
             <span className="icon is-small">
               <FaPlus />
             </span>
-          </a>
+          </button>
         </div>
         <div className="control is-expanded">
           <span className="select is-small is-fullwidth">
@@ -133,13 +133,13 @@ export default function ActionMenu(props) {
           </span>
         </div>
         <div className="control">
-          <a
+          <button
             className="button is-small is-primary"
             onClick={() => addTracksToPlaylist(trackIds)}
             disabled={!addToPlaylistOptions.length}
           >
             Ok
-          </a>
+          </button>
         </div>
       </div>
     </form>
@@ -149,11 +149,11 @@ export default function ActionMenu(props) {
     <form>
       <div className="field has-addons">
         <div className="control">
-          <a className="button is-static is-small">
+          <button className="button is-static is-small">
             <span className="icon is-small">
               <FaMinus />
             </span>
-          </a>
+          </button>
         </div>
         <div className="control is-expanded">
           <span
@@ -168,13 +168,13 @@ export default function ActionMenu(props) {
           </span>
         </div>
         <div className="control">
-          <a
+          <button
             className="button is-small is-primary"
             onClick={() => removeTracksFromPlaylist(trackIds)}
             disabled={!removeFromPlaylistOptions.length}
           >
             Ok
-          </a>
+          </button>
         </div>
       </div>
     </form>
