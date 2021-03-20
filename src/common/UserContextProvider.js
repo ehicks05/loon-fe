@@ -14,7 +14,7 @@ export const fetchUser = async () => {
     const response = await fetch("/api/users/current");
     useUserStore.setState({ user: await response.json() });
   } catch (err) {
-    useUserStore.setState({ user: { err } });
+    console.log("unable to load user info");
   }
 };
 export const updateUser = async (url, formData) => {
