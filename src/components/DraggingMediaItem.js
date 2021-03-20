@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useUserStore } from "../common/UserContextProvider";
 import { useWindowSize } from "react-use";
 
@@ -8,38 +8,23 @@ function formatTime(secs) {
   return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 }
 
-export default function DraggingMediaItem(props) {
-  const [limitTextLength, setLimitTextLength] = useState(true);
+export default function DraggingMediaItem({ trackNumber, track, provided }) {
   const user = useUserStore((state) => state.user);
   const windowSize = useWindowSize();
 
-  // not sure this is a good idea...
   function limitLength(input, fraction) {
-    if (!limitTextLength) return input;
-
     const limit = (windowSize.width * 1.6) / 20 / fraction;
     if (input.length > limit) return input.substring(0, limit) + "...";
     return input;
   }
 
-  const trackNumber = props.trackNumber;
-  const track = props.track;
-  const provided = props.provided;
-
-  const trackId = track.id;
-  const artist = props.track.artist
-    ? limitLength(props.track.artist, 1.8)
-    : "Missing!";
-  const trackTitle = props.track.title
-    ? limitLength(props.track.title, 1)
-    : "Missing!";
-  const album = props.track.album
-    ? limitLength(props.track.album, 1.8)
-    : "Missing!";
+  const artist = track.artist ? limitLength(track.artist, 1.8) : "Missing!";
+  const trackTitle = track.title ? limitLength(track.title, 1) : "Missing!";
+  const album = track.album ? limitLength(track.album, 1.8) : "Missing!";
   const formattedDuration = track.duration;
 
   const highlightClass =
-    trackId === user.userState.selectedTrackId ? " playingHighlight" : "";
+    track.id === user.userState.selectedTrackId ? " playingHighlight" : "";
 
   const innerRef = provided ? provided.innerRef : null;
   const draggableProps = provided ? provided.draggableProps : null;
@@ -53,7 +38,7 @@ export default function DraggingMediaItem(props) {
   return (
     <div
       className={highlightClass}
-      id={"track" + trackId}
+      id={"track" + track.id}
       ref={innerRef}
       {...draggableProps}
       style={{

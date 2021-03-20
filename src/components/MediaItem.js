@@ -15,9 +15,14 @@ const getRowStyle = (draggableStyle, isDragging) => ({
   ...draggableStyle,
 });
 
-export default function MediaItem(props) {
+export default function MediaItem({
+  trackNumber,
+  track,
+  playlistId,
+  provided,
+  snapshot,
+}) {
   const [hover, setHover] = useState(false);
-  const [limitTextLength, setLimitTextLength] = useState(true);
   const user = useUserStore((state) => state.user);
   const selectedContextMenuId = useUserStore(
     (state) => state.selectedContextMenuId
@@ -42,52 +47,43 @@ export default function MediaItem(props) {
 
   // not sure this is a good idea...
   function limitLength(input, fraction) {
-    if (!limitTextLength) return input;
-
     const limit = (windowSize.width * 1.6) / 20 / fraction;
     if (input.length > limit) return input.substring(0, limit) + "...";
     return input;
   }
 
-  const playlistId = props.playlistId;
-  const trackId = props.track.id;
-  const trackNumber = props.trackNumber;
-
-  const artist = props.track.artist ? props.track.artist : "Missing!";
-  const trackTitle = props.track.title ? props.track.title : "Missing!";
-  const album = props.track.album ? props.track.album : "Missing!";
+  const artist = track.artist ? track.artist : "Missing!";
+  const trackTitle = track.title ? track.title : "Missing!";
+  const album = track.album ? track.album : "Missing!";
 
   const trimmedArtist = limitLength(artist, 1.8);
   const trimmedTrackTitle = limitLength(trackTitle, 1);
   const trimmedAlbum = limitLength(album, 1.8);
 
-  const formattedDuration = props.track.formattedDuration;
+  const formattedDuration = track.formattedDuration;
 
   const highlightClass =
-    trackId === user.userState.selectedTrackId ? " playingHighlight" : "";
-
-  const provided = props.provided;
-  const snapshot = props.snapshot;
+    track.id === user.userState.selectedTrackId ? " playingHighlight" : "";
 
   const innerRef = provided ? provided.innerRef : null;
   const draggableStyle = provided ? provided.draggableProps.style : null;
   const draggableProps = provided ? provided.draggableProps : null;
   const dragHandleProps = provided ? provided.dragHandleProps : null;
 
-  const contextMenuId = "trackId=" + trackId;
+  const contextMenuId = "trackId=" + track.id;
   const isDropdownActive = selectedContextMenuId === contextMenuId;
   const isDragging = snapshot ? snapshot.isDragging : false;
 
   const showActionMenu = !isDragging && (hover || isDropdownActive);
 
-  const missingFile = props.track.missingFile;
+  const missingFile = track.missingFile;
   const trackTitleEl = (
     <b
       style={{ cursor: missingFile ? "default" : "pointer" }}
       onClick={
         missingFile
           ? null
-          : (e) => handleSelectedTrackIdChange(e, playlistId, trackId)
+          : (e) => handleSelectedTrackIdChange(e, playlistId, track.id)
       }
     >
       {trimmedTrackTitle}
@@ -97,7 +93,7 @@ export default function MediaItem(props) {
   return (
     <div
       className={highlightClass}
-      id={"track" + trackId}
+      id={"track" + track.id}
       ref={innerRef}
       {...draggableProps}
       style={getRowStyle(draggableStyle, isDragging)}
@@ -123,7 +119,7 @@ export default function MediaItem(props) {
           <br />
           <span style={{ fontSize: ".875rem" }}>
             <Link to={"/artist/" + artist}>{trimmedArtist}</Link> -{" "}
-            <Link to={"/artist/" + props.track.albumArtist + "/album/" + album}>
+            <Link to={"/artist/" + track.albumArtist + "/album/" + album}>
               <i>{trimmedAlbum}</i>
             </Link>
           </span>
@@ -131,7 +127,7 @@ export default function MediaItem(props) {
 
         <div className={"mediaItemEllipsis"}>
           {showActionMenu && (
-            <ActionMenu tracks={[props.track]} contextMenuId={contextMenuId} />
+            <ActionMenu tracks={[track]} contextMenuId={contextMenuId} />
           )}
         </div>
 
