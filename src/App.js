@@ -16,9 +16,8 @@ import { useWindowSize } from "react-use";
 import LoginForm from "./LoginForm";
 
 import SidePanel from "./SidePanel";
-import Loader from "react-loader-spinner";
-import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Title from "./Title";
+import PageLoader from "PageLoader";
 
 export default function App() {
   const [history] = useState(createBrowserHistory({ basename: "/" }));
@@ -74,27 +73,7 @@ export default function App() {
 
   if (!user && !userLoading) return <LoginForm />;
 
-  const loaded = user && tracks && playlists;
-  if (!loaded) {
-    return (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-        }}
-      >
-        <div style={{ margin: "auto" }}>
-          <Loader
-            type="RevolvingDot"
-            color="#44CC44"
-            height={150}
-            width={150}
-          />
-        </div>
-      </div>
-    );
-  }
+  if (!(user && tracks && playlists)) return <PageLoader />;
 
   return (
     <Router history={history}>
