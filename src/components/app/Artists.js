@@ -15,7 +15,7 @@ export default function Artists() {
       artistName: track.artist,
       artistImageId: track.artistThumbnailId,
     }))
-    .uniqBy((artist) => artist.artistName)
+    .uniqWith(_.isEqual)
     .value();
 
   const artistItems = artists.map((artist) => {

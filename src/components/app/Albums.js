@@ -21,7 +21,7 @@ export default function Albums(props) {
       album: track.album,
       albumImageId: track.albumThumbnailId,
     }))
-    .uniqBy((track) => ({ albumArtist: track.albumArtist, album: track.album }))
+    .uniqWith(_.isEqual)
     .sortBy(["albumArtist", "album"])
     .value();
 

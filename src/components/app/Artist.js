@@ -16,7 +16,8 @@ export default function Artist(props) {
 
   const artistTracks = _.chain(tracks)
     .filter((track) => track.artist === artistParam)
-    .sortBy(["album", "discNumber", "trackNumber"]);
+    .sortBy(["album", "discNumber", "trackNumber"])
+    .value();
 
   const artist = {
     artistName: artistTracks[0].artist,
