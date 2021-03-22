@@ -3,21 +3,14 @@ import { useTimeStore } from "../../../common/TimeContextProvider";
 import Slider from "rc-slider/es";
 import "rc-slider/assets/index.css";
 
-const timeElapsedLevelItemStyle = { marginBottom: "0" };
-const timeElapsedStyle = { fontSize: ".875rem", marginRight: "10px" };
-const progressStyle = { width: "100%", margin: "0", cursor: "pointer" };
-const durationStyle = { fontSize: ".875rem", marginLeft: "8px" };
-
-const sliderTrackStyle = { backgroundColor: "hsl(141, 71%, 48%)", height: 4 };
-const sliderRailStyle = { backgroundColor: "#ddd" };
-const sliderHandleStyle = { borderColor: "hsl(141, 71%, 48%)" };
-
 export default function TrackProgressBar() {
-  const { elapsedTime, duration, setElapsedTime } = useTimeStore((state) => ({
-    elapsedTime: state.elapsedTime,
-    duration: state.duration,
-    setElapsedTime: state.setElapsedTime,
-  }));
+  const { elapsedTime, duration, setForcedElapsedTime } = useTimeStore(
+    (state) => ({
+      elapsedTime: state.elapsedTime,
+      duration: state.duration,
+      setForcedElapsedTime: state.setForcedElapsedTime,
+    })
+  );
 
   const formattedElapsedTime = formatTime(Math.round(elapsedTime));
   const formattedDuration = formatTime(Math.round(duration));
@@ -25,32 +18,35 @@ export default function TrackProgressBar() {
   function formatTime(secs) {
     const minutes = Math.floor(secs / 60) || 0;
     const seconds = Math.round(secs - minutes * 60) || 0;
-    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   }
 
   function HandleSetElapsedTime(value) {
-    setElapsedTime(value);
+    setForcedElapsedTime(value);
   }
 
   return (
-    <div className="level-item" style={timeElapsedLevelItemStyle}>
-      <span id="timeElapsed" style={timeElapsedStyle}>
+    <div className="level-item" style={{ marginBottom: "0" }}>
+      <span
+        id="timeElapsed"
+        style={{ fontSize: ".875rem", marginRight: "10px" }}
+      >
         {formattedElapsedTime}
       </span>
       <Slider
         name="progress"
         id="progress"
-        style={progressStyle}
-        trackStyle={sliderTrackStyle}
-        railStyle={sliderRailStyle}
-        handleStyle={sliderHandleStyle}
+        style={{ width: "100%", margin: "0", cursor: "pointer" }}
+        trackStyle={{ backgroundColor: "hsl(141, 71%, 48%)", height: 4 }}
+        railStyle={{ backgroundColor: "#ddd" }}
+        handleStyle={{ borderColor: "hsl(141, 71%, 48%)" }}
         type="range"
         value={elapsedTime}
         max={duration}
         step={0.01}
         onChange={HandleSetElapsedTime}
       />
-      <span id="duration" style={durationStyle}>
+      <span id="duration" style={{ fontSize: ".875rem", marginLeft: "8px" }}>
         {formattedDuration}
       </span>
     </div>

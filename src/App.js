@@ -69,7 +69,6 @@ export default function App() {
     const footerHeight = progressBarHeight + (width <= 768 ? 111 : 62);
     const columnHeight = "" + (height - (headerHeight + footerHeight)) + "px";
     setColumnHeight(columnHeight);
-    console.log(columnHeight);
   }, [width, height]);
 
   if (!user && !userLoading) return <LoginForm />;

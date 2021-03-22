@@ -11,7 +11,7 @@ export const setUser = (user) => useUserStore.setState({ user: user });
 
 export const fetchUser = async () => {
   try {
-    const response = await fetch("/api/users/current");
+    const response = await fetch("/me");
     useUserStore.setState({ user: await response.json() });
   } catch (err) {
     console.log("unable to load user info");

@@ -6,6 +6,12 @@ const useTimeStore = create((set) => ({
 
   duration: 0,
   setDuration: (duration) => set({ duration }),
+
+  playerState: "stopped",
+  setPlayerState: (playerState) => set({ playerState }),
+
+  forcedElapsedTime: 0,
+  setForcedElapsedTime: (forcedElapsedTime) => set({ forcedElapsedTime }),
 }));
 
 export { useTimeStore };

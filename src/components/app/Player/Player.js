@@ -16,18 +16,20 @@ import { getNewTrackId } from "./utils";
 const Player = () => {
   const user = useUserStore((state) => state.user);
   const tracks = useAppStore((state) => state.tracks);
-  const { setElapsedTime, setDuration } = useTimeStore((state) => ({
+  const {
+    setElapsedTime,
+    setDuration,
+    playerState,
+    setPlayerState,
+    forcedElapsedTime,
+  } = useTimeStore((state) => ({
     setElapsedTime: state.setElapsedTime,
     setDuration: state.setDuration,
+    playerState: state.playerState,
+    setPlayerState: state.setPlayerState,
+    forcedElapsedTime: state.forcedElapsedTime,
   }));
   const volume = user.userState.volume;
-
-  const [playerState, setPlayerState] = useState("stopped");
-  const playerStateRef = useRef(playerState);
-
-  useEffect(() => {
-    playerStateRef.current = playerState;
-  }, [playerState]);
 
   let audio = useRef({});
   let audioCtx = useRef({});
@@ -39,6 +41,14 @@ const Player = () => {
   let band4 = useRef({});
   let analyser = useRef({});
   let audioBufferSourceNode = useRef({});
+
+  useEffect(() => {
+    handlePlayerStateChange(playerState);
+  }, [playerState]);
+
+  useEffect(() => {
+    if (audio) audio.current.currentTime = forcedElapsedTime;
+  }, [forcedElapsedTime]);
 
   useEffect(() => {
     const userState = user.userState;
@@ -116,7 +126,7 @@ const Player = () => {
 
         if (e.key === " ")
           handlePlayerStateChange(
-            playerStateRef.current === "playing" ? "paused" : "playing"
+            playerState === "playing" ? "paused" : "playing"
           );
         if (e.key === "ArrowRight") handleTrackChange("next");
         if (e.key === "ArrowLeft") handleTrackChange("prev");
@@ -245,12 +255,6 @@ const Player = () => {
     if (newPlayerState) setPlayerState(newPlayerState);
   }
 
-  function handleProgressChange(progress) {
-    if (audio) audio.current.currentTime = progress;
-  }
-
-  if (!audio) return <div>Loading...</div>;
-
   return null;
 
   function renderSpectrumFrame() {
@@ -261,10 +265,7 @@ const Player = () => {
 
     if (!audioCtx || !analyser) return;
 
-    if (
-      audioCtx.current.state !== "running" ||
-      playerStateRef.current !== "playing"
-    )
+    if (audioCtx.current.state !== "running" || playerState !== "playing")
       return;
 
     const ctx = canvas.getContext("2d");
