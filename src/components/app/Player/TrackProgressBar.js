@@ -12,7 +12,7 @@ const sliderTrackStyle = { backgroundColor: "hsl(141, 71%, 48%)", height: 4 };
 const sliderRailStyle = { backgroundColor: "#ddd" };
 const sliderHandleStyle = { borderColor: "hsl(141, 71%, 48%)" };
 
-export default function TrackProgressBar(props) {
+export default function TrackProgressBar() {
   const { elapsedTime, duration, setElapsedTime } = useTimeStore((state) => ({
     elapsedTime: state.elapsedTime,
     duration: state.duration,
@@ -25,13 +25,11 @@ export default function TrackProgressBar(props) {
   function formatTime(secs) {
     const minutes = Math.floor(secs / 60) || 0;
     const seconds = Math.round(secs - minutes * 60) || 0;
-
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   }
 
   function HandleSetElapsedTime(value) {
     setElapsedTime(value);
-    props.onProgressChange(value);
   }
 
   return (

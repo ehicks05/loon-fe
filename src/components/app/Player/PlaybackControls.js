@@ -11,64 +11,54 @@ import TrackDescription from "./TrackDescription";
 import PlaybackButtons from "./PlaybackButtons";
 import VolumeSlider from "./VolumeSlider";
 
-const levelRightStyle = { marginTop: "4px", marginRight: "8px" };
-const levelRightStyleMobile = { marginTop: "4px", marginRight: "0" };
-const myLevel1Style = {
-  zIndex: "5",
-  position: "static",
-  padding: "8px",
-  paddingBottom: "0",
-};
-const myLevel2Style = {
-  zIndex: "5",
-  position: "static",
-  padding: "8px",
-  paddingTop: "0",
-};
-
-export default function PlaybackControls(props) {
+export default function PlaybackControls() {
   const isWidthOver768 = useWindowSize().width >= 768;
-
-  const playbackButtons = (
-    <PlaybackButtons
-      playerState={props.playerState}
-      onPlayerStateChange={props.onPlayerStateChange}
-    />
-  );
-
-  const levelLeft = (
-    <div className="level-left">
-      {isWidthOver768 && playbackButtons}
-      <TrackDescription />
-    </div>
-  );
-
-  const levelRight = (
-    <div
-      className="level-right"
-      style={isWidthOver768 ? levelRightStyle : levelRightStyleMobile}
-    >
-      <div className="level-item">
-        {!isWidthOver768 && playbackButtons}
-        <ShuffleButton />
-        <MuteButton />
-        <VolumeSlider />
-      </div>
-    </div>
-  );
 
   return (
     <>
-      <div className="section myLevel" style={myLevel1Style}>
+      <div
+        className="section myLevel"
+        style={{
+          zIndex: "5",
+          position: "static",
+          padding: "8px",
+          paddingBottom: "0",
+        }}
+      >
         <nav className="level">
-          <TrackProgressBar onProgressChange={props.onProgressChange} />
+          <TrackProgressBar />
         </nav>
       </div>
 
-      <div className="section myLevel" style={myLevel2Style}>
+      <div
+        className="section myLevel"
+        style={{
+          zIndex: "5",
+          position: "static",
+          padding: "8px",
+          paddingTop: "0",
+        }}
+      >
         <nav className="level">
-          {levelLeft}
-          {levelRight}
+          <div className="level-left">
+            {isWidthOver768 && <PlaybackButtons />}
+            <TrackDescription />
+          </div>
+          <div
+            className="level-right"
+            style={
+              isWidthOver768
+                ? { marginTop: "4px", marginRight: "8px" }
+                : { marginTop: "4px", marginRight: "0" }
+            }
+          >
+            <div className="level-item">
+              {!isWidthOver768 && <PlaybackButtons />}
+              <ShuffleButton />
+              <MuteButton />
+              <VolumeSlider />
+            </div>
+          </div>
         </nav>
       </div>
     </>

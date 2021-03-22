@@ -1,13 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import PlaybackControls from "./PlaybackControls";
 import {
   useUserStore,
   setSelectedTrackId,
 } from "../../../common/UserContextProvider";
-import {
-  useAppStore,
-  getPlaylistById,
-} from "../../../common/AppContextProvider";
+import { useAppStore } from "../../../common/AppContextProvider";
 import {
   scaleVolume,
   getMaxSafeGain,
@@ -15,6 +11,7 @@ import {
   getMergedFrequencyBins,
 } from "../../../common/PlayerUtil";
 import { useTimeStore } from "../../../common/TimeContextProvider";
+import { getNewTrackId } from "./utils";
 
 const Player = () => {
   const user = useUserStore((state) => state.user);
@@ -157,71 +154,13 @@ const Player = () => {
     band4.current.gain.value = userState.eq4Gain;
   }, [user]);
 
-  // todo next 3 functions are duplicates, also found in PlaybackButtons.js
   function handleTrackChange(direction) {
     const newTrackId = getNewTrackId(direction);
     setSelectedTrackId(newTrackId);
   }
 
-  function getCurrentPlaylistTrackIds(selectedPlaylistId) {
-    const currentPlaylist = getPlaylistById(selectedPlaylistId);
-    if (currentPlaylist)
-      return currentPlaylist.playlistTracks.map(
-        (playlistTrack) => playlistTrack.track.id
-      );
-    else return tracks.map((track) => track.id);
-  }
-
-  function getNewTrackId(input) {
-    const selectedTrackId = user.userState.selectedTrackId;
-    const selectedPlaylistId = user.userState.selectedPlaylistId;
-    const shuffle = user.userState.shuffle;
-
-    const currentPlaylistTrackIds = getCurrentPlaylistTrackIds(
-      selectedPlaylistId
-    );
-
-    const currentTrackIndex = currentPlaylistTrackIds.indexOf(selectedTrackId);
-    let newTrackId = -1;
-    if (shuffle) {
-      let newPlaylistTrackIndex = Math.floor(
-        Math.random() * currentPlaylistTrackIds.length
-      );
-      newTrackId = currentPlaylistTrackIds[newPlaylistTrackIndex];
-      console.log("new random trackId: " + newTrackId);
-    } else {
-      let newIndex;
-      if (input === "prev") {
-        newIndex = currentTrackIndex - 1;
-        if (newIndex < 0) {
-          newIndex = currentPlaylistTrackIds.length - 1;
-        }
-      }
-      if (input === "next") {
-        newIndex = currentTrackIndex + 1;
-        if (newIndex >= currentPlaylistTrackIds.length) {
-          newIndex = 0;
-        }
-      }
-
-      newTrackId = currentPlaylistTrackIds[newIndex];
-    }
-
-    if (newTrackId === -1) {
-      console.error("Unable to select a new track id.");
-    }
-
-    return newTrackId;
-  }
-
   function handlePlayerStateChange(newPlayerState, newTrackId) {
-    console.log(
-      "in Player.handlePlayerStateChange(" +
-        newPlayerState +
-        ", " +
-        newTrackId +
-        ")"
-    );
+    console.log(`handlePlayerStateChange(${newPlayerState}, ${newTrackId})`);
 
     if (newPlayerState === "paused") audioCtx.current.suspend();
     if (newPlayerState === "playing" || !newPlayerState) {
@@ -312,13 +251,7 @@ const Player = () => {
 
   if (!audio) return <div>Loading...</div>;
 
-  return (
-    <PlaybackControls
-      playerState={playerState}
-      onPlayerStateChange={handlePlayerStateChange}
-      onProgressChange={handleProgressChange}
-    />
-  );
+  return null;
 
   function renderSpectrumFrame() {
     requestAnimationFrame(renderSpectrumFrame);

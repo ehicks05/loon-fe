@@ -7,6 +7,8 @@ import {
   useAppStore,
   getPlaylistById,
 } from "../../../common/AppContextProvider";
+import { useTimeStore } from "../../../common/TimeContextProvider";
+
 import { useWindowSize } from "react-use";
 import { FaPause, FaPlay, FaStepBackward, FaStepForward } from "react-icons/fa";
 
@@ -14,16 +16,18 @@ const prevButtonStyle = { height: "36px", width: "36px" };
 const pauseButtonStyle = { height: "45px", width: "45px" };
 const nextButtonStyle = { height: "36px", width: "36px" };
 
-export default function PlaybackButtons(props) {
+export default function PlaybackButtons() {
   const user = useUserStore((state) => state.user);
   const tracks = useAppStore((state) => state.tracks);
+  const playerState = useTimeStore((state) => state.playerState);
+  const setPlayerState = useTimeStore((state) => state.setPlayerState);
   const { width } = useWindowSize();
 
-  function handlePlayerStateChange(e, newState) {
-    props.onPlayerStateChange(newState);
+  function handlePlayerStateChange(newState) {
+    setPlayerState(newState);
   }
 
-  function handleTrackChange(e, direction) {
+  function handleTrackChange(direction) {
     const newTrackId = getNewTrackId(direction);
     setSelectedTrackId(newTrackId);
   }
@@ -80,7 +84,7 @@ export default function PlaybackButtons(props) {
     <button
       className="button"
       style={prevButtonStyle}
-      onClick={(e) => handleTrackChange(e, "prev")}
+      onClick={() => handleTrackChange("prev")}
     >
       <span className="icon">
         <FaStepBackward />
@@ -92,15 +96,14 @@ export default function PlaybackButtons(props) {
     <button
       className="button is-medium"
       style={pauseButtonStyle}
-      onClick={(e) =>
+      onClick={() =>
         handlePlayerStateChange(
-          e,
-          props.playerState === "playing" ? "paused" : "playing"
+          playerState === "playing" ? "paused" : "playing"
         )
       }
     >
       <span className="icon">
-        {props.playerState === "playing" ? <FaPause /> : <FaPlay />}
+        {playerState === "playing" ? <FaPause /> : <FaPlay />}
       </span>
     </button>
   );
@@ -109,7 +112,7 @@ export default function PlaybackButtons(props) {
     <button
       className="button"
       style={nextButtonStyle}
-      onClick={(e) => handleTrackChange(e, "next")}
+      onClick={() => handleTrackChange("next")}
     >
       <span className="icon">
         <FaStepForward />

@@ -18,6 +18,7 @@ import LoginForm from "./LoginForm";
 import SidePanel from "./SidePanel";
 import Title from "./Title";
 import PageLoader from "PageLoader";
+import PlaybackControls from "components/app/Player/PlaybackControls";
 
 export default function App() {
   const [history] = useState(createBrowserHistory({ basename: "/" }));
@@ -105,6 +106,7 @@ export default function App() {
         </div>
       </div>
       <Player />
+      <PlaybackControls />
     </Router>
   );
 }
