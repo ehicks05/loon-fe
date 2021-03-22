@@ -51,8 +51,8 @@ export default function Header() {
 
   const isAdmin = user.admin;
   const customPlaylists = playlists
-    .filter((playlist) => !playlist.favorites && !playlist.queue)
-    .map((playlist) => {
+    ?.filter((playlist) => !playlist.favorites && !playlist.queue)
+    ?.map((playlist) => {
       return playlistToNavLink(playlist);
     });
 
@@ -136,7 +136,7 @@ export default function Header() {
           >
             Albums
           </NavLink>
-          {customPlaylists.length === 0 && (
+          {customPlaylists?.length === 0 && (
             <NavLink
               to="/playlists"
               activeClassName="is-active"
@@ -146,7 +146,7 @@ export default function Header() {
               Playlists
             </NavLink>
           )}
-          {customPlaylists.length !== 0 && (
+          {customPlaylists?.length !== 0 && (
             <div className={"navbar-item has-dropdown is-hoverable"}>
               <NavLink
                 to="/playlists"
