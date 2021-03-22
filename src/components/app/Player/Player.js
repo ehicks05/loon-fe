@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   useUserStore,
   setSelectedTrackId,
@@ -8,10 +8,10 @@ import {
   scaleVolume,
   getMaxSafeGain,
   scrollIntoView,
-  getMergedFrequencyBins,
 } from "../../../common/PlayerUtil";
 import { useTimeStore } from "../../../common/TimeContextProvider";
 import { getNewTrackId } from "./utils";
+import renderSpectrumFrame from "./spectrum";
 
 const Player = () => {
   const user = useUserStore((state) => state.user);
@@ -118,7 +118,7 @@ const Player = () => {
     }
     setInterval(step, 500);
 
-    renderSpectrumFrame(audioCtx, analyser);
+    renderSpectrumFrame(audioCtx, analyser, playerState);
 
     function initKeyboardShortcuts() {
       document.body.addEventListener("keyup", function (e) {
@@ -256,56 +256,6 @@ const Player = () => {
   }
 
   return null;
-
-  function renderSpectrumFrame() {
-    requestAnimationFrame(renderSpectrumFrame);
-
-    const canvas = document.getElementById("spectrumCanvas");
-    if (!canvas) return;
-
-    if (!audioCtx || !analyser) return;
-
-    if (audioCtx.current.state !== "running" || playerState !== "playing")
-      return;
-
-    const ctx = canvas.getContext("2d");
-
-    // Make it visually fill the positioned parent
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    // ...then set the internal size to match
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-
-    const WIDTH = canvas.width;
-    const HEIGHT = canvas.height;
-
-    const dataArray = new Uint8Array(analyser.current.frequencyBinCount);
-    const binWidth =
-      audioCtx.current.sampleRate / analyser.current.frequencyBinCount;
-    analyser.current.getByteFrequencyData(dataArray);
-
-    const mergedData = getMergedFrequencyBins(dataArray, binWidth);
-    const bufferLength = mergedData.length;
-
-    let x = 0;
-    const barWidth = WIDTH / bufferLength - 1;
-
-    for (let i = 0; i < bufferLength; i++) {
-      const barHeight = mergedData[i] / (255 / HEIGHT);
-
-      const red = (barHeight / HEIGHT) * 255;
-
-      const r = red + 25 * (i / bufferLength);
-      const g = 250 * (i / bufferLength);
-      const b = 50;
-
-      ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-      ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-
-      x += barWidth + 1;
-    }
-  }
 };
 
 export default Player;

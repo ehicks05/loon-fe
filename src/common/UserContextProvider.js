@@ -32,6 +32,12 @@ export const setSelectedPlaylistId = async (
   updateUser(useUserStore.getState().user.id + "/saveProgress", formData);
 };
 export const setSelectedTrackId = async (selectedTrackId) => {
+  // todo figure out how to do this right
+  const user = useUserStore.getState().user;
+  useUserStore.setState({
+    user: { ...user, userState: { ...user.userState, selectedTrackId } },
+  });
+
   const formData = new FormData();
   formData.append(
     "selectedPlaylistId",
