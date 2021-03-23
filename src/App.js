@@ -47,8 +47,8 @@ export default function App() {
       await fetchPlaylists();
       setLibraryLoading(false);
     };
-    if (user && !userLoading) fetchLibrary();
-  }, [userLoading]);
+    if (user && !userLoading && libraryLoading) fetchLibrary();
+  }, [user, userLoading, libraryLoading]);
 
   // polling
   useEffect(() => {

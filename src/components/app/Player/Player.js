@@ -55,13 +55,13 @@ const Player = () => {
       const audio = new Audio();
       audio.controls = false;
       audio.autoplay = false;
-      audio.onended = function () {
+      audio.onended = () => {
         changeTrack("next");
       };
-      audio.ondurationchange = function () {
+      audio.ondurationchange = () => {
         setDuration(audio.duration);
       };
-      audio.onerror = function () {
+      audio.onerror = () => {
         console.log(audio.error);
       };
       audio.onplaying = () => {
@@ -144,40 +144,7 @@ const Player = () => {
 
     const handleTrackChange = (newTrackId) => {
       console.log(`handleTrackChange(${newTrackId})`);
-      // setElapsedTime(0);
-
-      const track = getTrackById(newTrackId || user.userState.selectedTrackId);
-      if (!track || track.missingFile) {
-        if (!track) console.log("no track found...");
-        if (track.missingFile) console.log("track is missing file...");
-        changeTrack("next");
-        return;
-      }
-
-      // set new audio source
-      if (audio.current) {
-        audio.current.volume = 0;
-        audio.current.src = "/media?id=" + track.id;
-
-        if (trackGainNode.current) {
-          const gain = getMaxSafeGain(track.trackGainLinear, track.trackPeak);
-          trackGainNode.current.gain.value = gain;
-        }
-
-        audio.current
-          .play()
-          .then(() => {
-            audio.current.volume = 1;
-
-            // Track changed while paused. Go to new track and pause.
-            if (playbackState !== "playing") audioCtx.current.suspend();
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-
-        scrollIntoView(track.id);
-      }
+      initAudioSource();
     };
 
     handleTrackChange(user.userState.selectedTrackId);
@@ -208,23 +175,76 @@ const Player = () => {
   };
 
   useEffect(() => {
-    const handlePlaybackStateChange = (newPlaybackState) => {
+    const handlePlaybackStateChange = async (newPlaybackState) => {
       // pause
-      if (newPlaybackState === "paused") audioCtx.current.suspend();
+      if (newPlaybackState === "paused") {
+        audioCtx.current.suspend();
+        return;
+      }
 
       // resume
       if (
         newPlaybackState === "playing" &&
+        audio.current.currentSrc &&
         audioCtx.current.state === "suspended"
       ) {
-        if (audio.current.currentSrc) audio.current.play();
+        console.log("resume1");
+        audio.current.play();
         audioCtx.current.resume();
         return;
+      }
+
+      // resume if suspended because of Autoplay Policy
+      if (
+        newPlaybackState === "playing" &&
+        audioCtx.current.state === "suspended"
+      ) {
+        console.log("resume2");
+        audioCtx.current.resume();
+
+        initAudioSource();
       }
     };
 
     handlePlaybackStateChange(playbackState);
   }, [playbackState]);
+
+  const initAudioSource = () => {
+    setElapsedTime(0);
+
+    const track = getTrackById(user.userState.selectedTrackId);
+    if (!track || track.missingFile) {
+      if (!track) console.log("no track found...");
+      if (track.missingFile) console.log("track is missing file...");
+      changeTrack("next");
+      return;
+    }
+
+    // set new audio source
+    if (audio.current) {
+      audio.current.volume = 0;
+      audio.current.src = "/media?id=" + track.id;
+
+      if (trackGainNode.current) {
+        const gain = getMaxSafeGain(track.trackGainLinear, track.trackPeak);
+        trackGainNode.current.gain.value = gain;
+      }
+
+      audio.current
+        .play()
+        .then(() => {
+          audio.current.volume = 1;
+
+          // Track changed while paused. Go to new track and pause.
+          if (playbackState !== "playing") audioCtx.current.suspend();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+
+      scrollIntoView(track.id);
+    }
+  };
 
   return null;
 };
