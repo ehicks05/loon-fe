@@ -8,9 +8,9 @@ import {
   scaleVolume,
   getMaxSafeGain,
   scrollIntoView,
-} from "../../../common/PlayerUtil";
+} from "./playerUtils";
 import { usePlayerStore } from "../../../common/PlayerContextProvider";
-import { getNewTrackId } from "./utils";
+import { getNewTrackId } from "./trackDeterminationUtils";
 import renderSpectrumFrame from "./spectrum";
 
 const Player = () => {
