@@ -1,16 +1,18 @@
+import { usePlayerStore } from "common/PlayerContextProvider";
+
 const OCTAVES = [
-  { from: 0, to: 20, distance: -6 },
-  { from: 20, to: 40, distance: -5 },
-  { from: 40, to: 80, distance: -4 },
-  { from: 80, to: 160, distance: -3 },
-  { from: 160, to: 320, distance: -2 },
-  { from: 320, to: 640, distance: -1 },
-  { from: 640, to: 1280, distance: 0 },
-  { from: 1280, to: 2560, distance: 1 },
-  { from: 2560, to: 5120, distance: 2 },
-  { from: 5120, to: 10240, distance: 3 },
-  { from: 10240, to: 20480, distance: 4 },
-  { from: 20480, to: 40960, distance: 5 },
+  { distance: -6, from: 0, to: 20 },
+  { distance: -5, from: 20, to: 40 },
+  { distance: -4, from: 40, to: 80 },
+  { distance: -3, from: 80, to: 160 },
+  { distance: -2, from: 160, to: 320 },
+  { distance: -1, from: 320, to: 640 },
+  { distance: 0, from: 640, to: 1280 },
+  { distance: 1, from: 1280, to: 2560 },
+  { distance: 2, from: 2560, to: 5120 },
+  { distance: 3, from: 5120, to: 10240 },
+  { distance: 4, from: 10240, to: 20480 },
+  { distance: 5, from: 20480, to: 40960 },
 ];
 
 function getFrequencyTiltAdjustment(binStartingFreq) {
@@ -48,17 +50,23 @@ function getMergedFrequencyBins(dataArray, binWidth) {
   return mergedData.slice(2); // the first 2 frequency bins tend to have very little energy
 }
 
-export default function renderSpectrumFrame(audioCtx, analyser, playerState) {
-  requestAnimationFrame(() =>
-    renderSpectrumFrame(audioCtx, analyser, playerState)
-  );
+export default function renderSpectrumFrame() {
+  const audioCtx = usePlayerStore.getState().audioCtx;
+  const analyser = usePlayerStore.getState().analyser;
+  const playbackState = usePlayerStore.getState().playbackState;
+
+  requestAnimationFrame(() => renderSpectrumFrame());
 
   const canvas = document.getElementById("spectrumCanvas");
-  if (!canvas) return;
 
-  if (!audioCtx || !analyser) return;
-
-  if (audioCtx.current.state !== "running" || playerState !== "playing") return;
+  if (
+    !canvas ||
+    !audioCtx ||
+    !analyser ||
+    audioCtx.current.state !== "running" ||
+    playbackState !== "playing"
+  )
+    return;
 
   const ctx = canvas.getContext("2d");
 

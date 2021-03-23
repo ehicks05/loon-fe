@@ -1,23 +1,18 @@
 import React from "react";
 import { setSelectedTrackId } from "../../../common/UserContextProvider";
-import { useTimeStore } from "../../../common/TimeContextProvider";
+import { usePlayerStore } from "../../../common/PlayerContextProvider";
 
 import { useWindowSize } from "react-use";
 import { FaPause, FaPlay, FaStepBackward, FaStepForward } from "react-icons/fa";
 import { getNewTrackId } from "./utils";
 
 export default function PlaybackButtons() {
-  const playerState = useTimeStore((state) => state.playerState);
-  const setPlayerState = useTimeStore((state) => state.setPlayerState);
+  const playbackState = usePlayerStore((state) => state.playbackState);
+  const setPlaybackState = usePlayerStore((state) => state.setPlaybackState);
   const { width } = useWindowSize();
 
-  function handlePlayerStateChange(newState) {
-    setPlayerState(newState);
-  }
-
   function handleTrackChange(direction) {
-    const newTrackId = getNewTrackId(direction);
-    setSelectedTrackId(newTrackId);
+    setSelectedTrackId(getNewTrackId(direction));
   }
 
   return (
@@ -35,13 +30,13 @@ export default function PlaybackButtons() {
         className="button is-medium"
         style={{ height: "45px", width: "45px" }}
         onClick={() =>
-          handlePlayerStateChange(
-            playerState === "playing" ? "paused" : "playing"
+          setPlaybackState(
+            playbackState === "playing" ? "paused" : "playing"
           )
         }
       >
         <span className="icon">
-          {playerState === "playing" ? <FaPause /> : <FaPlay />}
+          {playbackState === "playing" ? <FaPause /> : <FaPlay />}
         </span>
       </button>
       <button

@@ -1,10 +1,10 @@
 import React from "react";
-import { useTimeStore } from "../../../common/TimeContextProvider";
+import { usePlayerStore } from "../../../common/PlayerContextProvider";
 import Slider from "rc-slider/es";
 import "rc-slider/assets/index.css";
 
 export default function TrackProgressBar() {
-  const { elapsedTime, duration, setForcedElapsedTime } = useTimeStore(
+  const { elapsedTime, duration, setForcedElapsedTime } = usePlayerStore(
     (state) => ({
       elapsedTime: state.elapsedTime,
       duration: state.duration,

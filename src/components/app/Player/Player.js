@@ -3,31 +3,34 @@ import {
   useUserStore,
   setSelectedTrackId,
 } from "../../../common/UserContextProvider";
-import { useAppStore } from "../../../common/AppContextProvider";
+import { getTrackById } from "../../../common/AppContextProvider";
 import {
   scaleVolume,
   getMaxSafeGain,
   scrollIntoView,
 } from "../../../common/PlayerUtil";
-import { useTimeStore } from "../../../common/TimeContextProvider";
+import { usePlayerStore } from "../../../common/PlayerContextProvider";
 import { getNewTrackId } from "./utils";
 import renderSpectrumFrame from "./spectrum";
 
 const Player = () => {
   const user = useUserStore((state) => state.user);
-  const tracks = useAppStore((state) => state.tracks);
   const {
     setElapsedTime,
     setDuration,
-    playerState,
-    setPlayerState,
+    playbackState,
+    setPlaybackState,
     forcedElapsedTime,
-  } = useTimeStore((state) => ({
+    setAudioCtx,
+    setAnalyser,
+  } = usePlayerStore((state) => ({
     setElapsedTime: state.setElapsedTime,
     setDuration: state.setDuration,
-    playerState: state.playerState,
-    setPlayerState: state.setPlayerState,
+    playbackState: state.playbackState,
+    setPlaybackState: state.setPlaybackState,
     forcedElapsedTime: state.forcedElapsedTime,
+    setAudioCtx: state.setAudioCtx,
+    setAnalyser: state.setAnalyser,
   }));
   const volume = user.userState.volume;
 
@@ -43,8 +46,8 @@ const Player = () => {
   let audioBufferSourceNode = useRef({});
 
   useEffect(() => {
-    handlePlayerStateChange(playerState);
-  }, [playerState]);
+    handlePlayerStateChange(playbackState);
+  }, [playbackState]);
 
   useEffect(() => {
     if (audio) audio.current.currentTime = forcedElapsedTime;
@@ -54,7 +57,7 @@ const Player = () => {
     const userState = user.userState;
 
     function initAudio() {
-      let audio = new Audio();
+      const audio = new Audio();
       audio.controls = false;
       audio.autoplay = false;
       audio.onended = function () {
@@ -65,6 +68,9 @@ const Player = () => {
       };
       audio.onerror = function () {
         console.log(audio.error);
+      };
+      audio.onplaying = () => {
+        renderSpectrumFrame();
       };
       document.body.appendChild(audio);
       return audio;
@@ -118,21 +124,22 @@ const Player = () => {
     }
     setInterval(step, 500);
 
-    renderSpectrumFrame(audioCtx, analyser, playerState);
-
     function initKeyboardShortcuts() {
       document.body.addEventListener("keyup", function (e) {
         if (e.target.tagName === "INPUT") return;
 
         if (e.key === " ")
           handlePlayerStateChange(
-            playerState === "playing" ? "paused" : "playing"
+            playbackState === "playing" ? "paused" : "playing"
           );
         if (e.key === "ArrowRight") handleTrackChange("next");
         if (e.key === "ArrowLeft") handleTrackChange("prev");
       });
     }
     initKeyboardShortcuts();
+
+    setAudioCtx(audioCtx);
+    setAnalyser(analyser);
   }, []);
 
   const renders = useRef(0);
@@ -145,6 +152,7 @@ const Player = () => {
 
     handlePlayerStateChange(null, user.userState.selectedTrackId);
   }, [user.userState.selectedTrackId]);
+
   useEffect(() => {
     if (gainNode.current) gainNode.current.gain.value = scaleVolume(volume);
   }, [volume]);
@@ -169,11 +177,11 @@ const Player = () => {
     setSelectedTrackId(newTrackId);
   }
 
-  function handlePlayerStateChange(newPlayerState, newTrackId) {
-    console.log(`handlePlayerStateChange(${newPlayerState}, ${newTrackId})`);
+  function handlePlayerStateChange(newPlaybackState, newTrackId) {
+    console.log(`handlePlayerStateChange(${newPlaybackState}, ${newTrackId})`);
 
-    if (newPlayerState === "paused") audioCtx.current.suspend();
-    if (newPlayerState === "playing" || !newPlayerState) {
+    if (newPlaybackState === "paused") audioCtx.current.suspend();
+    if (newPlaybackState === "playing" || !newPlaybackState) {
       // resume
       if (
         !newTrackId &&
@@ -182,14 +190,14 @@ const Player = () => {
       ) {
         audio.current.play();
         audioCtx.current.resume();
-        setPlayerState(newPlayerState);
+        setPlaybackState(newPlaybackState);
 
         return;
       }
 
       // resume if suspended because of Autoplay Policy
       if (
-        newPlayerState === "playing" &&
+        newPlaybackState === "playing" &&
         audioCtx.current.state === "suspended"
       )
         audioCtx.current.resume();
@@ -198,7 +206,7 @@ const Player = () => {
 
       if (!newTrackId) newTrackId = user.userState.selectedTrackId;
 
-      let track = tracks.find((track) => track.id === newTrackId);
+      let track = getTrackById(newTrackId);
       if (!track) {
         console.log("no track found...");
         handleTrackChange("next");
@@ -214,7 +222,7 @@ const Player = () => {
         if (audio.current.src === "/media?id=" + track.id) {
           // we need to pause
           audioCtx.current.suspend();
-          setPlayerState("paused"); // do this since we're exiting early
+          setPlaybackState("paused"); // do this since we're exiting early
           return;
         }
       }
@@ -229,30 +237,28 @@ const Player = () => {
           track.trackPeak
         );
 
-      const playPromise = audio.current ? audio.current.play() : null;
-      if (playPromise !== null) {
-        playPromise
-          .then(() => {
-            audio.current.volume = 1;
+      audio?.current
+        ?.play()
+        .then(() => {
+          audio.current.volume = 1;
 
-            // This triggers when we hit 'next track' button while playback is paused.
-            // The player will go to start playing the new track and immediately pause.
-            if (
-              !newPlayerState &&
-              (playerState === "paused" || playerState === "stopped")
-            ) {
-              audioCtx.current.suspend();
-            }
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      }
+          // This triggers when we hit 'next track' button while playback is paused.
+          // The player will go to start playing the new track and immediately pause.
+          if (
+            !newPlaybackState &&
+            (playbackState === "paused" || playbackState === "stopped")
+          ) {
+            audioCtx.current.suspend();
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
 
       scrollIntoView(track.id);
     }
 
-    if (newPlayerState) setPlayerState(newPlayerState);
+    if (newPlaybackState) setPlaybackState(newPlaybackState);
   }
 
   return null;
