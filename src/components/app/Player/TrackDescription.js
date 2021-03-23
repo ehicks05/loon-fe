@@ -7,10 +7,6 @@ import { useUserStore } from "../../../common/UserContextProvider";
 import { PLACEHOLDER_IMAGE_URL, getImageUrl } from "components/utils";
 import { useWindowSize } from "react-use";
 
-const albumArtStyle = { height: "48px", margin: "0", paddingRight: "8px" };
-// const trackStyle = {maxWidth: textWidth, maxHeight: '48px', overflow: 'auto'};
-const artistAlbumTextStyle = { fontSize: ".875rem" };
-
 export default function TrackDescription() {
   const user = useUserStore((state) => state.user);
   const tracks = useAppStore((state) => state.tracks);
@@ -38,7 +34,7 @@ export default function TrackDescription() {
       data-src={imageUrl}
       alt="Placeholder"
       className="lazyload"
-      style={albumArtStyle}
+      style={{ height: "48px", margin: "0", paddingRight: "8px" }}
     />
   );
 
@@ -51,9 +47,9 @@ export default function TrackDescription() {
       >
         <b>{title}</b>
         <br />
-        <span id="artistAlbumText" style={artistAlbumTextStyle}>
+        <span id="artistAlbumText" style={{ fontSize: ".875rem" }}>
           <Link to={"/artist/" + artist}>{artist}</Link>
-          &nbsp;-&nbsp;
+          {" - "}
           <Link to={"/artist/" + albumArtist + "/album/" + album}>
             <i>{album}</i>
           </Link>

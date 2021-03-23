@@ -4,7 +4,7 @@ import { usePlayerStore } from "../../../common/PlayerContextProvider";
 
 import { useWindowSize } from "react-use";
 import { FaPause, FaPlay, FaStepBackward, FaStepForward } from "react-icons/fa";
-import { getNewTrackId } from "./utils";
+import { getNewTrackId } from "./trackDeterminationUtils";
 
 export default function PlaybackButtons() {
   const playbackState = usePlayerStore((state) => state.playbackState);
@@ -30,9 +30,7 @@ export default function PlaybackButtons() {
         className="button is-medium"
         style={{ height: "45px", width: "45px" }}
         onClick={() =>
-          setPlaybackState(
-            playbackState === "playing" ? "paused" : "playing"
-          )
+          setPlaybackState(playbackState === "playing" ? "paused" : "playing")
         }
       >
         <span className="icon">
