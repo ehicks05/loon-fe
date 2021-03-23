@@ -40,7 +40,7 @@ export default function MediaItem({
 
   function handleSelectedTrackIdChange(e, selectedPlaylistId, selectedTrackId) {
     console.log(
-      "setSelectedPlaylistId" + selectedPlaylistId + "..." + selectedTrackId
+      `setSelectedPlaylistId:${selectedPlaylistId}...${selectedTrackId}`
     );
     setSelectedPlaylistId(selectedPlaylistId, selectedTrackId);
   }

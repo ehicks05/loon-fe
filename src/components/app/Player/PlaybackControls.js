@@ -65,8 +65,6 @@ export default function PlaybackControls() {
   );
 }
 
-const shuffleButtonStyle = { marginLeft: "1.5em" };
-
 function ShuffleButton() {
   const user = useUserStore((state) => state.user);
   function handleShuffleChange() {
@@ -78,7 +76,7 @@ function ShuffleButton() {
       className={
         "button is-small" + (user.userState.shuffle ? " is-success" : "")
       }
-      style={shuffleButtonStyle}
+      style={{ marginLeft: "1.5em" }}
       onClick={handleShuffleChange}
     >
       <span className="icon">
@@ -87,8 +85,6 @@ function ShuffleButton() {
     </button>
   );
 }
-
-const muteButtonStyle = { margin: "0 .75em 0 .5em" };
 
 function MuteButton() {
   const user = useUserStore((state) => state.user);
@@ -99,7 +95,7 @@ function MuteButton() {
   return (
     <button
       className="button is-small"
-      style={muteButtonStyle}
+      style={{ margin: "0 .75em 0 .5em" }}
       onClick={handleMuteChange}
     >
       <span className="icon">

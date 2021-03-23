@@ -32,7 +32,6 @@ const Player = () => {
     setAudioCtx: state.setAudioCtx,
     setAnalyser: state.setAnalyser,
   }));
-  const volume = user.userState.volume;
 
   let audio = useRef({});
   let audioCtx = useRef({});
@@ -46,10 +45,6 @@ const Player = () => {
   let audioBufferSourceNode = useRef({});
 
   useEffect(() => {
-    handlePlayerStateChange(playbackState);
-  }, [playbackState]);
-
-  useEffect(() => {
     if (audio) audio.current.currentTime = forcedElapsedTime;
   }, [forcedElapsedTime]);
 
@@ -61,7 +56,7 @@ const Player = () => {
       audio.controls = false;
       audio.autoplay = false;
       audio.onended = function () {
-        handleTrackChange("next");
+        changeTrack("next");
       };
       audio.ondurationchange = function () {
         setDuration(audio.duration);
@@ -71,6 +66,9 @@ const Player = () => {
       };
       audio.onplaying = () => {
         renderSpectrumFrame();
+      };
+      audio.ontimeupdate = () => {
+        setElapsedTime(audio.currentTime);
       };
       document.body.appendChild(audio);
       return audio;
@@ -86,7 +84,7 @@ const Player = () => {
     band4.current = audioCtx.current.createBiquadFilter();
     analyser.current = audioCtx.current.createAnalyser();
 
-    gainNode.current.gain.value = scaleVolume(volume);
+    gainNode.current.gain.value = scaleVolume(userState.volume);
     gainNode.current.connect(trackGainNode.current);
 
     band1.current.type = "lowshelf";
@@ -119,21 +117,14 @@ const Player = () => {
 
     scrollIntoView(userState.selectedTrackId);
 
-    function step() {
-      if (audio) setElapsedTime(audio.current.currentTime);
-    }
-    setInterval(step, 500);
-
     function initKeyboardShortcuts() {
-      document.body.addEventListener("keyup", function (e) {
+      document.body.addEventListener("keypress", (e) => {
         if (e.target.tagName === "INPUT") return;
 
         if (e.key === " ")
-          handlePlayerStateChange(
-            playbackState === "playing" ? "paused" : "playing"
-          );
-        if (e.key === "ArrowRight") handleTrackChange("next");
-        if (e.key === "ArrowLeft") handleTrackChange("prev");
+          setPlaybackState(playbackState === "playing" ? "paused" : "playing");
+        if (e.key === "ArrowRight") changeTrack("next");
+        if (e.key === "ArrowLeft") changeTrack("prev");
       });
     }
     initKeyboardShortcuts();
@@ -144,18 +135,58 @@ const Player = () => {
 
   const renders = useRef(0);
 
+  // handle track change
   useEffect(() => {
     if (renders.current === 0) {
       renders.current = renders.current + 1;
       return;
     }
 
-    handlePlayerStateChange(null, user.userState.selectedTrackId);
+    const handleTrackChange = (newTrackId) => {
+      console.log(`handleTrackChange(${newTrackId})`);
+      // setElapsedTime(0);
+
+      const track = getTrackById(newTrackId || user.userState.selectedTrackId);
+      if (!track || track.missingFile) {
+        if (!track) console.log("no track found...");
+        if (track.missingFile) console.log("track is missing file...");
+        changeTrack("next");
+        return;
+      }
+
+      // set new audio source
+      if (audio.current) {
+        audio.current.volume = 0;
+        audio.current.src = "/media?id=" + track.id;
+
+        if (trackGainNode.current) {
+          const gain = getMaxSafeGain(track.trackGainLinear, track.trackPeak);
+          trackGainNode.current.gain.value = gain;
+        }
+
+        audio.current
+          .play()
+          .then(() => {
+            audio.current.volume = 1;
+
+            // Track changed while paused. Go to new track and pause.
+            if (playbackState !== "playing") audioCtx.current.suspend();
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+
+        scrollIntoView(track.id);
+      }
+    };
+
+    handleTrackChange(user.userState.selectedTrackId);
   }, [user.userState.selectedTrackId]);
 
   useEffect(() => {
-    if (gainNode.current) gainNode.current.gain.value = scaleVolume(volume);
-  }, [volume]);
+    if (gainNode.current)
+      gainNode.current.gain.value = scaleVolume(user.userState.volume);
+  }, [user.userState.volume]);
 
   useEffect(() => {
     if (!audio.current) return;
@@ -170,96 +201,30 @@ const Player = () => {
     band3.current.gain.value = userState.eq3Gain;
     band4.current.frequency.value = userState.eq4Frequency;
     band4.current.gain.value = userState.eq4Gain;
-  }, [user]);
+  }, [user.userState]);
 
-  function handleTrackChange(direction) {
-    const newTrackId = getNewTrackId(direction);
-    setSelectedTrackId(newTrackId);
-  }
+  const changeTrack = (direction) => {
+    setSelectedTrackId(getNewTrackId(direction));
+  };
 
-  function handlePlayerStateChange(newPlaybackState, newTrackId) {
-    console.log(`handlePlayerStateChange(${newPlaybackState}, ${newTrackId})`);
+  useEffect(() => {
+    const handlePlaybackStateChange = (newPlaybackState) => {
+      // pause
+      if (newPlaybackState === "paused") audioCtx.current.suspend();
 
-    if (newPlaybackState === "paused") audioCtx.current.suspend();
-    if (newPlaybackState === "playing" || !newPlaybackState) {
       // resume
-      if (
-        !newTrackId &&
-        audio.current.currentSrc &&
-        audioCtx.current.state === "suspended"
-      ) {
-        audio.current.play();
-        audioCtx.current.resume();
-        setPlaybackState(newPlaybackState);
-
-        return;
-      }
-
-      // resume if suspended because of Autoplay Policy
       if (
         newPlaybackState === "playing" &&
         audioCtx.current.state === "suspended"
-      )
+      ) {
+        if (audio.current.currentSrc) audio.current.play();
         audioCtx.current.resume();
-
-      setElapsedTime(0);
-
-      if (!newTrackId) newTrackId = user.userState.selectedTrackId;
-
-      let track = getTrackById(newTrackId);
-      if (!track) {
-        console.log("no track found...");
-        handleTrackChange("next");
         return;
       }
-      if (track.missingFile) {
-        console.log("attempted to play a track with missing file...");
-        handleTrackChange("next");
-        return;
-      }
+    };
 
-      if (audio.current && audioCtx.current.state === "running") {
-        if (audio.current.src === "/media?id=" + track.id) {
-          // we need to pause
-          audioCtx.current.suspend();
-          setPlaybackState("paused"); // do this since we're exiting early
-          return;
-        }
-      }
-
-      if (audio.current) {
-        audio.current.volume = 0;
-        audio.current.src = "/media?id=" + track.id;
-      }
-      if (trackGainNode.current)
-        trackGainNode.current.gain.value = getMaxSafeGain(
-          track.trackGainLinear,
-          track.trackPeak
-        );
-
-      audio?.current
-        ?.play()
-        .then(() => {
-          audio.current.volume = 1;
-
-          // This triggers when we hit 'next track' button while playback is paused.
-          // The player will go to start playing the new track and immediately pause.
-          if (
-            !newPlaybackState &&
-            (playbackState === "paused" || playbackState === "stopped")
-          ) {
-            audioCtx.current.suspend();
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-
-      scrollIntoView(track.id);
-    }
-
-    if (newPlaybackState) setPlaybackState(newPlaybackState);
-  }
+    handlePlaybackStateChange(playbackState);
+  }, [playbackState]);
 
   return null;
 };
