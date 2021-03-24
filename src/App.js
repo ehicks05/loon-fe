@@ -19,6 +19,7 @@ import SidePanel from "./SidePanel";
 import Title from "./Title";
 import PageLoader from "PageLoader";
 import PlaybackControls from "components/app/Player/PlaybackControls";
+import usePoll from "hooks/usePoll";
 
 export default function App() {
   const [history] = useState(createBrowserHistory({ basename: "/" }));
@@ -30,6 +31,7 @@ export default function App() {
   const tracks = useAppStore((state) => state.tracks);
   const playlists = useAppStore((state) => state.playlists);
   const { width, height } = useWindowSize();
+  usePoll("/api/poll", 60 * 60 * 1000);
 
   // load user
   useEffect(() => {
@@ -49,19 +51,6 @@ export default function App() {
     };
     if (user && !userLoading && libraryLoading) fetchLibrary();
   }, [user, userLoading, libraryLoading]);
-
-  // polling
-  useEffect(() => {
-    const pollIntervalId = setInterval(function () {
-      fetch("/api/poll", { method: "GET" })
-        .then((response) => response.text())
-        .then((text) => console.log("poll result: " + text));
-    }, 60 * 60 * 1000); // once an hour
-
-    return function cleanup() {
-      clearInterval(pollIntervalId);
-    };
-  }, []);
 
   useEffect(() => {
     const headerHeight = 56;
