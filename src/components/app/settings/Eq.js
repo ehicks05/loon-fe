@@ -3,8 +3,7 @@ import VerticalSlider from "../../VerticalSlider";
 import { useUserStore, setEq } from "../../../common/UserContextProvider";
 
 export default function Eq() {
-  const user = useUserStore((state) => state.user);
-  if (!user) return <div>Loading...</div>;
+  const userState = useUserStore((state) => state.userState);
 
   function handleEqChange(e) {
     const eqNum = e.target.name.substring(2, 3);
@@ -25,7 +24,6 @@ export default function Eq() {
     verticalAlign: "middle",
     padding: "8px",
   };
-  const userState = user.userState;
 
   const eqs = [
     {

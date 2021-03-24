@@ -5,10 +5,11 @@ import {
 } from "../../../common/AppContextProvider";
 
 export const getNewTrackId = (input) => {
-  const user = useUserStore.getState().user;
-  const selectedTrackId = user.userState.selectedTrackId;
-  const selectedPlaylistId = user.userState.selectedPlaylistId;
-  const shuffle = user.userState.shuffle;
+  const {
+    selectedTrackId,
+    selectedPlaylistId,
+    shuffle,
+  } = useUserStore.getState().userState;
 
   const currentPlaylistTrackIds = getCurrentPlaylistTrackIds(
     selectedPlaylistId

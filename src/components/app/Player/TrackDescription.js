@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React from "react";
-import { useAppStore, getTrackById } from "../../../common/AppContextProvider";
+import { getTrackById } from "../../../common/AppContextProvider";
 import "lazysizes";
 import "lazysizes/plugins/attrchange/ls.attrchange";
 import { useUserStore } from "../../../common/UserContextProvider";
@@ -8,15 +8,12 @@ import { PLACEHOLDER_IMAGE_URL, getImageUrl } from "components/utils";
 import { useWindowSize } from "react-use";
 
 export default function TrackDescription() {
-  const user = useUserStore((state) => state.user);
-  const tracks = useAppStore((state) => state.tracks);
+  const selectedTrackId = useUserStore(
+    (state) => state.userState.selectedTrackId
+  );
   const { width } = useWindowSize();
 
-  function getSelectedTrack() {
-    return tracks ? getTrackById(user.userState.selectedTrackId) : null;
-  }
-
-  const selectedTrack = getSelectedTrack();
+  const selectedTrack = getTrackById(selectedTrackId);
 
   const artist = selectedTrack ? selectedTrack.artist : "";
   const albumArtist = selectedTrack ? selectedTrack.albumArtist : "";

@@ -23,7 +23,9 @@ export default function MediaItem({
   snapshot,
 }) {
   const [hover, setHover] = useState(false);
-  const user = useUserStore((state) => state.user);
+  const selectedTrackId = useUserStore(
+    (state) => state.userState.selectedTrackId
+  );
   const selectedContextMenuId = useUserStore(
     (state) => state.selectedContextMenuId
   );
@@ -63,7 +65,7 @@ export default function MediaItem({
   const formattedDuration = track.formattedDuration;
 
   const highlightClass =
-    track.id === user.userState.selectedTrackId ? " playingHighlight" : "";
+    track.id === selectedTrackId ? " playingHighlight" : "";
 
   const innerRef = provided ? provided.innerRef : null;
   const draggableStyle = provided ? provided.draggableProps.style : null;

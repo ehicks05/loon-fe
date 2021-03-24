@@ -66,16 +66,14 @@ export default function PlaybackControls() {
 }
 
 function ShuffleButton() {
-  const user = useUserStore((state) => state.user);
+  const shuffle = useUserStore((state) => state.userState.shuffle);
   function handleShuffleChange() {
-    setShuffle(!user.userState.shuffle);
+    setShuffle(!shuffle);
   }
 
   return (
     <button
-      className={
-        "button is-small" + (user.userState.shuffle ? " is-success" : "")
-      }
+      className={"button is-small" + (shuffle ? " is-success" : "")}
       style={{ marginLeft: "1.5em" }}
       onClick={handleShuffleChange}
     >
@@ -87,9 +85,9 @@ function ShuffleButton() {
 }
 
 function MuteButton() {
-  const user = useUserStore((state) => state.user);
+  const muted = useUserStore((state) => state.userState.muted);
   function handleMuteChange() {
-    setMuted(!user.userState.muted);
+    setMuted(!muted);
   }
 
   return (
@@ -99,7 +97,7 @@ function MuteButton() {
       onClick={handleMuteChange}
     >
       <span className="icon">
-        {user.userState.muted ? <FaVolumeOff fixedWidth /> : <FaVolumeUp />}
+        {muted ? <FaVolumeOff fixedWidth /> : <FaVolumeUp />}
       </span>
     </button>
   );

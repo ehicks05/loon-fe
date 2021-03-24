@@ -11,7 +11,7 @@ const sliderRailStyle = { backgroundColor: "#ddd" };
 const sliderHandleStyle = { borderColor: "hsl(141, 71%, 48%)" };
 
 export default function VolumeSlider() {
-  const volume = useUserStore((state) => state.user.userState.volume);
+  const volume = useUserStore((state) => state.userState.volume);
 
   return (
     <div style={volumeSliderStyle}>

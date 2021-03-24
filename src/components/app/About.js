@@ -1,20 +1,19 @@
 import React from "react";
-import { useAppStore } from "../../common/AppContextProvider";
+import { getTrackById } from "../../common/AppContextProvider";
 import { useUserStore } from "../../common/UserContextProvider";
 
 export default function About() {
-  const tracks = useAppStore((state) => state.tracks);
-  const user = useUserStore((state) => state.user);
-  const getSelectedTrack = () =>
-    tracks.find((track) => track.id === user.userState.selectedTrackId);
+  const selectedTrackId = useUserStore(
+    (state) => state.userState.selectedTrackId
+  );
 
-  const selectedTrack = getSelectedTrack();
+  const selectedTrack = getTrackById(selectedTrackId);
 
   const selectedTrackInfoRows = selectedTrack
-    ? Object.entries(selectedTrack).map((value) => (
-        <tr key={value[0]}>
-          <td>{value[0]}</td>
-          <td>{value[1]}</td>
+    ? Object.entries(selectedTrack).map(([key, val]) => (
+        <tr key={key}>
+          <td>{key}</td>
+          <td>{val}</td>
         </tr>
       ))
     : null;

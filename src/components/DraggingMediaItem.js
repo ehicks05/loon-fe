@@ -9,7 +9,9 @@ function formatTime(secs) {
 }
 
 export default function DraggingMediaItem({ trackNumber, track, provided }) {
-  const user = useUserStore((state) => state.user);
+  const selectedTrackId = useUserStore(
+    (state) => state.userState.selectedTrackId
+  );
   const windowSize = useWindowSize();
 
   function limitLength(input, fraction) {
@@ -24,7 +26,7 @@ export default function DraggingMediaItem({ trackNumber, track, provided }) {
   const formattedDuration = track.duration;
 
   const highlightClass =
-    track.id === user.userState.selectedTrackId ? " playingHighlight" : "";
+    track.id === selectedTrackId ? " playingHighlight" : "";
 
   const innerRef = provided ? provided.innerRef : null;
   const draggableProps = provided ? provided.draggableProps : null;

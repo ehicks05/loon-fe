@@ -15,10 +15,11 @@ import { useUserStore } from "./common/UserContextProvider";
 
 export default function SidePanel() {
   const playlists = useAppStore((state) => state.playlists);
-  const user = useUserStore((state) => state.user);
-  const selectedPlaylistId = user.userState.selectedPlaylistId;
+  const selectedPlaylistId = useUserStore(
+    (state) => state.userState.selectedPlaylistId
+  );
 
-  if (!playlists || !user) return <div>Loading...</div>;
+  if (!playlists) return <div>Loading...</div>;
 
   const defaultLinks = [
     {

@@ -39,7 +39,9 @@ export default function Playlist(props) {
   const [playlistId, setPlaylistId] = useState(null);
   const [redirectTo, setRedirectTo] = useState(null);
 
-  const user = useUserStore((state) => state.user);
+  const selectedTrackId = useUserStore(
+    (state) => state.userState.selectedTrackId
+  );
   const playlists = useAppStore((state) => state.playlists);
   const trackMap = useTrackMap();
   const windowSize = useWindowSize();
@@ -125,7 +127,6 @@ export default function Playlist(props) {
 
   if (redirectTo) return <Redirect to={redirectTo} />;
 
-  const selectedTrackId = user.userState.selectedTrackId;
   const playlist = getPlaylistById(playlistId);
 
   if (!playlists || !playlist) return <div>Loading...</div>;

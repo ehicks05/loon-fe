@@ -20,7 +20,9 @@ export default function Search() {
   const [searchKey, setSearchKey] = useState("");
 
   const tracks = useAppStore((state) => state.tracks);
-  const user = useUserStore((state) => state.user);
+  const selectedTrackId = useUserStore(
+    (state) => state.userState.selectedTrackId
+  );
   const cache = useRef(
     new CellMeasurerCache({ fixedWidth: true, defaultHeight: 58 })
   );
@@ -55,7 +57,6 @@ export default function Search() {
     setSearchKey(e.target.value);
   }
 
-  const selectedTrackId = user.userState.selectedTrackId;
   const scrollToIndex = searchResults.indexOf(
     searchResults.find((track) => track.id === selectedTrackId)
   );

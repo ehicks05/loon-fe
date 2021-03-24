@@ -4,17 +4,13 @@ import {
   setSelectedTrackId,
 } from "../../../common/UserContextProvider";
 import { getTrackById } from "../../../common/AppContextProvider";
-import {
-  scaleVolume,
-  getMaxSafeGain,
-  scrollIntoView,
-} from "./playerUtils";
+import { scaleVolume, getMaxSafeGain, scrollIntoView } from "./playerUtils";
 import { usePlayerStore } from "../../../common/PlayerContextProvider";
 import { getNewTrackId } from "./trackDeterminationUtils";
 import renderSpectrumFrame from "./spectrum";
 
 const Player = () => {
-  const user = useUserStore((state) => state.user);
+  const userState = useUserStore((state) => state.userState);
   const {
     setElapsedTime,
     setDuration,
@@ -49,8 +45,6 @@ const Player = () => {
   }, [forcedElapsedTime]);
 
   useEffect(() => {
-    const userState = user.userState;
-
     function initAudio() {
       const audio = new Audio();
       audio.controls = false;
@@ -147,18 +141,17 @@ const Player = () => {
       initAudioSource();
     };
 
-    handleTrackChange(user.userState.selectedTrackId);
-  }, [user.userState.selectedTrackId]);
+    handleTrackChange(userState.selectedTrackId);
+  }, [userState.selectedTrackId]);
 
   useEffect(() => {
     if (gainNode.current)
-      gainNode.current.gain.value = scaleVolume(user.userState.volume);
-  }, [user.userState.volume]);
+      gainNode.current.gain.value = scaleVolume(userState.volume);
+  }, [userState.volume]);
 
   useEffect(() => {
     if (!audio.current) return;
 
-    const userState = user.userState;
     audio.current.muted = userState.muted;
     band1.current.frequency.value = userState.eq1Frequency;
     band1.current.gain.value = userState.eq1Gain;
@@ -168,7 +161,7 @@ const Player = () => {
     band3.current.gain.value = userState.eq3Gain;
     band4.current.frequency.value = userState.eq4Frequency;
     band4.current.gain.value = userState.eq4Gain;
-  }, [user.userState]);
+  }, [userState]);
 
   const changeTrack = (direction) => {
     setSelectedTrackId(getNewTrackId(direction));
@@ -212,7 +205,7 @@ const Player = () => {
   const initAudioSource = () => {
     setElapsedTime(0);
 
-    const track = getTrackById(user.userState.selectedTrackId);
+    const track = getTrackById(userState.selectedTrackId);
     if (!track || track.missingFile) {
       if (!track) console.log("no track found...");
       if (track.missingFile) console.log("track is missing file...");

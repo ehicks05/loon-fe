@@ -1,78 +1,89 @@
 import create from "zustand";
+import { devtools } from "zustand/middleware";
 
 const baseUrl = "/api/users/";
 
-export const useUserStore = create(() => ({
-  user: null,
-  selectedContextMenuId: null,
-}));
+export const useUserStore = create(
+  devtools(() => ({
+    user: null,
+    userState: null,
+    selectedContextMenuId: null,
+  }))
+);
 
-export const setUser = (user) => useUserStore.setState({ user: user });
-
+export const setUser = (user) => useUserStore.setState({ user });
 export const fetchUser = async () => {
   try {
     const response = await fetch("/me");
     useUserStore.setState({ user: await response.json() });
+    await fetchUserState();
   } catch (err) {
-    console.log("unable to load user info");
+    console.log("unable to load user");
   }
 };
-export const updateUser = async (url, formData) => {
-  await fetch(baseUrl + url, { method: "PUT", body: formData });
-  await fetchUser();
+
+export const setUserState = (userState) => useUserStore.setState({ userState });
+export const fetchUserState = async () => {
+  try {
+    const response = await fetch(baseUrl + "/currentUserState");
+    useUserStore.setState({ userState: await response.json() });
+  } catch (err) {
+    console.log("unable to load userState");
+  }
+};
+
+// helpers
+
+const toFormData = (input) => {
+  const formData = new FormData();
+  Object.entries(input).forEach(([key, val]) => formData.append(key, val));
+  return formData;
+};
+
+export const updateUser = async (url, data) => {
+  Object.entries(data).forEach(([key, val]) =>
+    setUserState({ ...useUserStore.getState().userState, [key]: val })
+  );
+  await fetch(baseUrl + url, { method: "PUT", body: toFormData(data) });
+  // await fetchUserState();
 };
 
 export const setSelectedPlaylistId = async (
   selectedPlaylistId,
   selectedTrackId
 ) => {
-  const formData = new FormData();
-  formData.append("selectedPlaylistId", selectedPlaylistId);
-  formData.append("selectedTrackId", selectedTrackId);
-  updateUser(useUserStore.getState().user.id + "/saveProgress", formData);
+  updateUser(useUserStore.getState().user.id + "/saveProgress", {
+    selectedPlaylistId,
+    selectedTrackId,
+  });
 };
 export const setSelectedTrackId = async (selectedTrackId) => {
-  const formData = new FormData();
-  formData.append(
-    "selectedPlaylistId",
-    useUserStore.getState().user.userState.selectedPlaylistId
-  );
-  formData.append("selectedTrackId", selectedTrackId);
-  updateUser(useUserStore.getState().user.id + "/saveProgress", formData);
+  updateUser(useUserStore.getState().user.id + "/saveProgress", {
+    selectedPlaylistId: useUserStore.getState().userState.selectedPlaylistId,
+    selectedTrackId,
+  });
 };
 
 export const setMuted = async (muted) => {
-  const formData = new FormData();
-  formData.append("muted", muted);
-  updateUser(useUserStore.getState().user.id, formData);
+  updateUser(useUserStore.getState().user.id, { muted });
 };
 export const setShuffle = async (shuffle) => {
-  const formData = new FormData();
-  formData.append("shuffle", shuffle);
-  updateUser(useUserStore.getState().user.id, formData);
+  updateUser(useUserStore.getState().user.id, { shuffle });
 };
 export const setVolume = async (volume) => {
-  const user = useUserStore.getState().user;
-  useUserStore.setState({
-    user: { ...user, userState: { ...user.userState, volume } },
-  });
-  const formData = new FormData();
-  formData.append("volume", volume);
-  updateUser(useUserStore.getState().user.id, formData);
+  updateUser(useUserStore.getState().user.id, { volume });
 };
 export const setTranscode = async (transcode) => {
-  const formData = new FormData();
-  formData.append("transcode", transcode);
-  updateUser(useUserStore.getState().user.id, formData);
+  updateUser(useUserStore.getState().user.id, { transcode });
 };
 
 export const setEq = async (eqNum, field, value) => {
-  const formData = new FormData();
-  formData.append("eqNum", eqNum);
-  formData.append("field", field);
-  formData.append("value", value);
-  updateUser(useUserStore.getState().user.id + "/eq", formData);
+  updateUser(useUserStore.getState().user.id + "/eq", {
+    eqNum,
+    field,
+    value,
+  });
 };
 
 export const setSelectedContextMenuId = (selectedContextMenuId) =>
-  useUserStore.setState({ selectedContextMenuId: selectedContextMenuId });
+  useUserStore.setState({ selectedContextMenuId });

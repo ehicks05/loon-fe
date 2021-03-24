@@ -6,7 +6,7 @@ import {
 } from "../../../common/UserContextProvider";
 
 export default function GeneralSettings() {
-  const user = useUserStore((state) => state.user);
+  const transcode = useUserStore((state) => state.userState.transcode);
   const [transcodeQuality, setTranscodeQuality] = useState("");
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function GeneralSettings() {
               className="switch is-rounded"
               id="transcode"
               name="transcode"
-              checked={user.userState.transcode}
+              checked={transcode}
               onChange={(e) => handleSetTranscode(e)}
             />
             <label htmlFor="transcode">

@@ -5,7 +5,9 @@ import { useUserStore } from "../../common/UserContextProvider";
 
 export default function Playlists() {
   const playlists = useAppStore((state) => state.playlists);
-  const user = useUserStore((state) => state.user);
+  const selectedPlaylistId = useUserStore(
+    (state) => state.userState.selectedPlaylistId
+  );
   function handleDeletePlaylist(playlistId) {
     if (window.confirm("Do you really want to delete this playlist?"))
       return deletePlaylist(playlistId);
@@ -14,18 +16,16 @@ export default function Playlists() {
   const playlistItems = playlists
     .filter((playlist) => !playlist.favorites && !playlist.queue)
     .map((playlist, index) => {
-      const highlightClass =
-        playlist.id === user.userState.selectedPlaylistId
-          ? " playingHighlight"
-          : "";
-
       return (
-        <tr key={playlist.id} className={highlightClass}>
+        <tr
+          key={playlist.id}
+          className={
+            playlist.id === selectedPlaylistId ? " playingHighlight" : ""
+          }
+        >
           <td> {index + 1} </td>
           <td>
-            <Link to={"/playlists/" + playlist.id} className="">
-              {playlist.name}
-            </Link>
+            <Link to={"/playlists/" + playlist.id}>{playlist.name}</Link>
           </td>
           <td className={"has-text-right"}>{playlist.playlistTracks.length}</td>
           <td>
