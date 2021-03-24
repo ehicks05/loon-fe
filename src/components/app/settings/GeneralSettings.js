@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "bulma-switch/dist/css/bulma-switch.min.css";
 import {
   useUserStore,
   setTranscode,
@@ -30,13 +29,12 @@ export default function GeneralSettings() {
           <div className="field">
             <input
               type="checkbox"
-              className="switch is-rounded"
               id="transcode"
               name="transcode"
               checked={transcode}
               onChange={(e) => handleSetTranscode(e)}
             />
-            <label htmlFor="transcode">
+            <label htmlFor="transcode" style={{ padding: ".5rem" }}>
               Transcode all tracks to mp3 v{transcodeQuality}
             </label>
           </div>

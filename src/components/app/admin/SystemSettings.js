@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TextInput from "../../TextInput";
 import Select from "../../Select";
-import "bulma-switch/dist/css/bulma-switch.min.css";
 import superFetch from "../../../common/SuperFetch";
 
 export default function SystemSettings() {
@@ -134,22 +133,28 @@ export default function SystemSettings() {
               <div className="field">
                 <input
                   type="checkbox"
-                  className="switch is-rounded"
                   id="registrationEnabled"
                   name="registrationEnabled"
                   defaultChecked={settings.registrationEnabled}
                 />
-                <label htmlFor="registrationEnabled">Enable Registration</label>
+                <label
+                  htmlFor="registrationEnabled"
+                  style={{ padding: ".5rem" }}
+                >
+                  Enable Registration
+                </label>
               </div>
               <div className="field">
                 <input
                   type="checkbox"
-                  className="switch is-rounded"
                   id="directoryWatcherEnabled"
                   name="directoryWatcherEnabled"
                   defaultChecked={settings.directoryWatcherEnabled}
                 />
-                <label htmlFor="directoryWatcherEnabled">
+                <label
+                  htmlFor="directoryWatcherEnabled"
+                  style={{ padding: ".5rem" }}
+                >
                   Enable Directory Watcher
                 </label>
               </div>
