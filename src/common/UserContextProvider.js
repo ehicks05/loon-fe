@@ -1,5 +1,6 @@
 import create from "zustand";
 import { devtools } from "zustand/middleware";
+import _ from "lodash";
 
 const baseUrl = "/api/users/";
 
@@ -40,12 +41,22 @@ const toFormData = (input) => {
   return formData;
 };
 
+const debouncedVolumeFetch = _.debounce(fetch, 2000);
+const debouncedFetchUserState = _.debounce(fetchUserState, 2000);
+
 export const updateUser = async (url, data) => {
   Object.entries(data).forEach(([key, val]) =>
     setUserState({ ...useUserStore.getState().userState, [key]: val })
   );
-  await fetch(baseUrl + url, { method: "PUT", body: toFormData(data) });
-  // await fetchUserState();
+
+  if (data.volume) {
+    await debouncedVolumeFetch(baseUrl + url, {
+      method: "PUT",
+      body: toFormData(data),
+    });
+  } else await fetch(baseUrl + url, { method: "PUT", body: toFormData(data) });
+
+  // debouncedFetchUserState();
 };
 
 export const setSelectedPlaylistId = async (
