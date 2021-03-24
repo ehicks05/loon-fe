@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Router } from "react-router-dom";
 import { createBrowserHistory } from "history";
-import "bulma/css/bulma.min.css";
 
 import Header from "./Header";
 import Player from "./components/app/Player/Player";
