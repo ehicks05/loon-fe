@@ -24,7 +24,6 @@ import {
   getPlaylistById,
 } from "../../common/AppContextProvider";
 import { useWindowSize } from "react-use";
-import useDebounce from "../../hooks/UseDebounce";
 
 const autoSizerStyle = { outline: 0 };
 const listStyle = {
@@ -45,7 +44,6 @@ export default function Playlist(props) {
   const playlists = useAppStore((state) => state.playlists);
   const trackMap = useTrackMap();
   const windowSize = useWindowSize();
-  const windowSizeDebounced = useDebounce(windowSize, 250);
 
   const cache = useRef(
     new CellMeasurerCache({ fixedWidth: true, defaultHeight: 58 })
@@ -66,7 +64,7 @@ export default function Playlist(props) {
     cache.current.clearAll();
     listRef.current.recomputeRowHeights();
     listRef.current.forceUpdateGrid();
-  }, [windowSizeDebounced.width]);
+  }, [windowSize.width]);
 
   useEffect(() => {
     function parsePlaylistId() {

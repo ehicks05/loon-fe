@@ -13,11 +13,12 @@ import {
   useUserStore,
   setSelectedContextMenuId,
 } from "../../common/UserContextProvider";
-import useDebounce from "../../hooks/UseDebounce";
+import _ from "lodash";
 
 export default function Search() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchKey, setSearchKey] = useState("");
+  const setSearchKeyDebounced = _.debounce(setSearchKey, 200);
 
   const tracks = useAppStore((state) => state.tracks);
   const selectedTrackId = useUserStore(
@@ -28,8 +29,6 @@ export default function Search() {
   );
   const listRef = useRef({});
 
-  const debouncedSearchKey = useDebounce(searchKey, 250);
-
   useEffect(() => {
     return function cleanup() {
       setSelectedContextMenuId(null);
@@ -37,7 +36,7 @@ export default function Search() {
   }, []);
 
   useEffect(() => {
-    const key = debouncedSearchKey.toLowerCase();
+    const key = searchKey.toLowerCase();
     const filteredTracks =
       key.length > 0
         ? tracks.filter((track) => {
@@ -51,10 +50,10 @@ export default function Search() {
         : tracks;
 
     setSearchResults(filteredTracks);
-  }, [tracks, debouncedSearchKey]);
+  }, [tracks, searchKey]);
 
   function handleSearchInput(e) {
-    setSearchKey(e.target.value);
+    setSearchKeyDebounced(e.target.value);
   }
 
   const scrollToIndex = searchResults.indexOf(
