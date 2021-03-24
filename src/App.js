@@ -64,7 +64,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const headerHeight = 52;
+    const headerHeight = 56;
     const progressBarHeight = 23;
     const footerHeight = progressBarHeight + (width <= 768 ? 111 : 62);
     const columnHeight = "" + (height - (headerHeight + footerHeight)) + "px";
