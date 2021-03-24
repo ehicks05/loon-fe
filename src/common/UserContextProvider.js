@@ -42,7 +42,6 @@ const toFormData = (input) => {
 };
 
 const debouncedVolumeFetch = _.debounce(fetch, 2000);
-const debouncedFetchUserState = _.debounce(fetchUserState, 2000);
 
 export const updateUser = async (url, data) => {
   Object.entries(data).forEach(([key, val]) =>
@@ -56,7 +55,7 @@ export const updateUser = async (url, data) => {
     });
   } else await fetch(baseUrl + url, { method: "PUT", body: toFormData(data) });
 
-  // debouncedFetchUserState();
+  // fetchUserState();
 };
 
 export const setSelectedPlaylistId = async (
@@ -88,11 +87,15 @@ export const setTranscode = async (transcode) => {
   updateUser(useUserStore.getState().user.id, { transcode });
 };
 
+const debouncedEqFetch = _.debounce(fetch, 2000);
+
 export const setEq = async (eqNum, field, value) => {
-  updateUser(useUserStore.getState().user.id + "/eq", {
-    eqNum,
-    field,
-    value,
+  const stateField = `eq${eqNum}${field}`;
+  setUserState({ ...useUserStore.getState().userState, [stateField]: value });
+
+  await debouncedEqFetch(baseUrl + useUserStore.getState().user.id + "/eq", {
+    method: "PUT",
+    body: toFormData({ eqNum, field, value }),
   });
 };
 
