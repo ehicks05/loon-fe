@@ -14,14 +14,20 @@ export default function SystemSettings() {
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource("/hello", { withCredentials: true });
+    const eventSource = new EventSource("/system-events", {
+      withCredentials: true,
+    });
     eventSource.addEventListener("taskStateUpdate", function (e) {
       setTaskState(JSON.parse(e.data));
     });
+
+    return function cleanup() {
+      eventSource.close();
+    };
   }, []);
 
   function tasksInProgress() {
-    if (!taskState.tasks) return null;
+    if (!taskState?.tasks) return null;
 
     let inProgress = Object.entries(taskState.tasks).filter(
       (entry) => entry[1].status === "incomplete"
@@ -93,7 +99,6 @@ export default function SystemSettings() {
     { value: "6", text: "v6 (~120 Kbps)" },
   ];
 
-  const taskStatuses = new Map(Object.entries(taskState.tasks));
   const isTasksRunning = taskState.tasksRunning > 0;
 
   return (
@@ -199,7 +204,7 @@ export default function SystemSettings() {
                     Library Sync
                   </button>
                   <ProgressText
-                    taskStatus={taskStatuses.get("LibrarySyncTask")}
+                    taskStatus={taskState.tasks["LibrarySyncTask"]}
                   />
                 </div>
                 <div
@@ -214,7 +219,7 @@ export default function SystemSettings() {
                   >
                     Scan for Files
                   </button>
-                  <ProgressText taskStatus={taskStatuses.get("MusicScanner")} />
+                  <ProgressText taskStatus={taskState.tasks["MusicScanner"]} />
                 </div>
                 <div
                   className={"buttons has-addons"}
@@ -228,7 +233,7 @@ export default function SystemSettings() {
                   >
                     Scan for Images
                   </button>
-                  <ProgressText taskStatus={taskStatuses.get("ImageScanner")} />
+                  <ProgressText taskStatus={taskState.tasks["ImageScanner"]} />
                 </div>
                 <div
                   className={"buttons has-addons"}
@@ -243,7 +248,7 @@ export default function SystemSettings() {
                     Transcode Library
                   </button>
                   <ProgressText
-                    taskStatus={taskStatuses.get("TranscoderTask")}
+                    taskStatus={taskState.tasks["TranscoderTask"]}
                   />
                 </div>
                 <div className={"buttons"} style={{ marginBottom: "0" }}>
