@@ -10,7 +10,7 @@ export default function UserSettings() {
   useEffect(() => {
     function getCurrentUser() {
       // todo this logic is duplicated from UiState.js
-      return fetch("/api/users/current", { method: "GET" })
+      return fetch("/me")
         .then((response) => response.json())
         .then((data) => setCurrentUser(data));
     }
