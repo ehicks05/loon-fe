@@ -35,7 +35,7 @@ export default function GeneralSettings() {
               onChange={(e) => handleSetTranscode(e)}
             />
             <label htmlFor="transcode" style={{ padding: ".5rem" }}>
-              Transcode all tracks to mp3 v{transcodeQuality}
+              Prefer transcoded mp3 v{transcodeQuality} (if available)
             </label>
           </div>
         </form>
