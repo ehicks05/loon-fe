@@ -93,9 +93,9 @@ export const setEq = async (eqNum, field, value) => {
   const stateField = `eq${eqNum}${field}`;
   setUserState({ ...useUserStore.getState().userState, [stateField]: value });
 
-  await debouncedEqFetch(baseUrl + useUserStore.getState().user.id + "/eq", {
+  await debouncedEqFetch(baseUrl + useUserStore.getState().user.id, {
     method: "PUT",
-    body: toFormData({ eqNum, field, value }),
+    body: toFormData({ eqNum, eqField: field, eqValue: value }),
   });
 };
 
