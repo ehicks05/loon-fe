@@ -2,16 +2,16 @@ import { useEffect } from "react";
 
 export default function usePoll(url, delay) {
   useEffect(() => {
-    const pollIntervalId = setInterval(function () {
+    const doFetch = () => {
       fetch(url)
         .then((response) => response.text())
         .then((text) => console.log("poll result: " + text));
-    }, delay);
+    };
+    doFetch();
+    const pollIntervalId = setInterval(doFetch, delay);
 
     return function cleanup() {
       clearInterval(pollIntervalId);
     };
-  }, []);
-
-  return undefined;
+  }, [url, delay]);
 }
