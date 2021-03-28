@@ -3,13 +3,14 @@ import {
   useUserStore,
   setTranscode,
 } from "../../../common/UserContextProvider";
+import superFetch from "../../../common/SuperFetch";
 
 export default function GeneralSettings() {
   const transcode = useUserStore((state) => state.userState.transcode);
   const [transcodeQuality, setTranscodeQuality] = useState("");
 
   useEffect(() => {
-    fetch("/api/systemSettings/transcodeQuality", { method: "GET" })
+    superFetch("/systemSettings/transcodeQuality", { method: "GET" })
       .then((response) => response.json())
       .then((data) => setTranscodeQuality(data));
   }, []);

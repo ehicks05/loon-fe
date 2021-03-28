@@ -8,7 +8,7 @@ export default function SystemSettings() {
   const [taskState, setTaskState] = useState(null);
 
   useEffect(() => {
-    fetch("/api/admin/systemSettings", { method: "GET" })
+    fetch("/admin/systemSettings", { method: "GET" })
       .then((response) => response.json())
       .then((data) => setSettings(data));
   }, []);
@@ -73,18 +73,18 @@ export default function SystemSettings() {
   }
 
   function updateSystemSettings(formData) {
-    return superFetch("/api/admin/systemSettings", {
+    return superFetch("/admin/systemSettings", {
       method: "PUT",
       body: formData,
     }).then((response) => response.json());
   }
 
   function doImageScan() {
-    fetch("/api/admin/systemSettings/imageScan", { method: "GET" });
+    superFetch("/admin/systemSettings/imageScan", { method: "GET" });
   }
 
   function doTranscodeLibrary() {
-    fetch("/api/admin/systemSettings/transcodeLibrary", { method: "GET" });
+    superFetch("/admin/systemSettings/transcodeLibrary", { method: "GET" });
   }
 
   if (!settings || !taskState) return <div>Loading...</div>;

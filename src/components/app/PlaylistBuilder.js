@@ -28,7 +28,7 @@ export default function PlaylistBuilder(props) {
   const playlists = useAppStore((state) => state.playlists);
 
   useEffect(() => {
-    fetch("/api/library/getLibraryTrackPaths", { method: "GET" })
+    fetch("/library/getLibraryTrackPaths", { method: "GET" })
       .then((response) => response.json())
       .then((json) => setTreeData(json));
   }, []);

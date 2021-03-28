@@ -28,7 +28,7 @@ export default function App() {
   const tracks = useAppStore((state) => state.tracks);
   const playlists = useAppStore((state) => state.playlists);
   const { width, height } = useWindowSize();
-  usePoll("/api/poll", 60 * 60 * 1000);
+  usePoll("/poll", 60 * 60 * 1000);
 
   // load user
   useEffect(() => {

@@ -32,13 +32,13 @@ export default function UserSettings() {
   // USER CALLS //
 
   function createUser(formData) {
-    return superFetch("/api/admin/users", { method: "POST", body: formData })
+    return superFetch("/admin/users", { method: "POST", body: formData })
       .then((response) => response.json())
       .then(() => loadUsers());
   }
 
   function updateUser(id, formData) {
-    return superFetch("/api/admin/users/" + id, {
+    return superFetch("/admin/users/" + id, {
       method: "PUT",
       body: formData,
     })
@@ -47,13 +47,13 @@ export default function UserSettings() {
   }
 
   function deleteUserFETCH(id) {
-    return superFetch("/api/admin/users/" + id, { method: "DELETE" })
+    return superFetch("/admin/users/" + id, { method: "DELETE" })
       .then((response) => response.text())
       .then(() => loadUsers());
   }
 
   function loadUsers() {
-    return fetch("/api/admin/users", { method: "GET" })
+    return superFetch("/admin/users", { method: "GET" })
       .then((response) => response.json())
       .then((json) => setUsers([...json]));
   }
