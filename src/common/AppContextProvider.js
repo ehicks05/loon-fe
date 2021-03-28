@@ -1,8 +1,9 @@
 import _ from "lodash";
 import create from "zustand";
+import superFetch from "./SuperFetch";
 
-const tracksBaseUrl = "/api/library/";
-const playlistBaseUrl = "/api/playlists/";
+const tracksBaseUrl = "/library/";
+const playlistBaseUrl = "/playlists/";
 
 export const useAppStore = create(() => ({
   tracks: null,
@@ -18,17 +19,17 @@ export const useDistinctArtists = () => {
 };
 
 export const fetchTracks = async () => {
-  const response = await fetch(tracksBaseUrl);
+  const response = await superFetch(tracksBaseUrl);
   useAppStore.setState({ tracks: await response.json() });
 };
 
 export const fetchPlaylists = async () => {
-  const response = await fetch(playlistBaseUrl + "/getPlaylists");
+  const response = await superFetch(playlistBaseUrl + "/getPlaylists");
   useAppStore.setState({ playlists: await response.json() });
 };
 
 export const upsertPlaylist = async (formData) => {
-  await fetch(playlistBaseUrl + "/addOrModify", {
+  await superFetch(playlistBaseUrl + "/addOrModify", {
     method: "POST",
     body: formData,
   });
@@ -36,7 +37,7 @@ export const upsertPlaylist = async (formData) => {
 };
 
 export const toggleTracksInPlaylist = async (playlistId, formData) => {
-  await fetch(playlistBaseUrl + playlistId, {
+  await superFetch(playlistBaseUrl + playlistId, {
     method: "POST",
     body: formData,
   });
@@ -44,7 +45,7 @@ export const toggleTracksInPlaylist = async (playlistId, formData) => {
 };
 
 export const copyPlaylist = async (formData) => {
-  const id = await fetch(playlistBaseUrl + "copyFrom", {
+  const id = await superFetch(playlistBaseUrl + "copyFrom", {
     method: "POST",
     body: formData,
   })
@@ -57,7 +58,7 @@ export const copyPlaylist = async (formData) => {
 };
 
 export const deletePlaylist = async (playlistId) => {
-  await fetch(playlistBaseUrl + playlistId, { method: "DELETE" });
+  await superFetch(playlistBaseUrl + playlistId, { method: "DELETE" });
   fetchPlaylists();
 };
 
@@ -66,7 +67,10 @@ export const clearPlaylist = async (playlistId) => {
   formData.append("mode", "");
   formData.append("replaceExisting", true);
   formData.append("trackIds", []);
-  await fetch(playlistBaseUrl + playlistId, { method: "POST", body: formData });
+  await superFetch(playlistBaseUrl + playlistId, {
+    method: "POST",
+    body: formData,
+  });
   fetchPlaylists();
 };
 
@@ -98,6 +102,9 @@ export const dragAndDrop = async (formData) => {
   playlist.playlistTracks = tracks;
   useAppStore.setState({ ...playlists, playlist });
 
-  await fetch("/api/playlists/dragAndDrop", { method: "POST", body: formData });
+  await superFetch(playlistBaseUrl + "dragAndDrop", {
+    method: "POST",
+    body: formData,
+  });
   fetchPlaylists();
 };

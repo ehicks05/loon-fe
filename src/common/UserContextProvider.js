@@ -1,8 +1,9 @@
 import create from "zustand";
 import { devtools } from "zustand/middleware";
 import _ from "lodash";
+import superFetch from "./SuperFetch";
 
-const baseUrl = "/api/users/";
+const baseUrl = "/users/";
 
 export const useUserStore = create(
   devtools(() => ({
@@ -15,7 +16,7 @@ export const useUserStore = create(
 export const setUser = (user) => useUserStore.setState({ user });
 export const fetchUser = async () => {
   try {
-    const response = await fetch("/me");
+    const response = await superFetch("/me");
     useUserStore.setState({ user: await response.json() });
     await fetchUserState();
   } catch (err) {
@@ -26,7 +27,7 @@ export const fetchUser = async () => {
 export const setUserState = (userState) => useUserStore.setState({ userState });
 export const fetchUserState = async () => {
   try {
-    const response = await fetch(baseUrl + "/currentUserState");
+    const response = await superFetch(baseUrl + "/currentUserState");
     useUserStore.setState({ userState: await response.json() });
   } catch (err) {
     console.log("unable to load userState");
@@ -41,7 +42,7 @@ const toFormData = (input) => {
   return formData;
 };
 
-const debouncedVolumeFetch = _.debounce(fetch, 2000);
+const debouncedVolumeFetch = _.debounce(superFetch, 2000);
 
 export const updateUser = async (url, data) => {
   Object.entries(data).forEach(([key, val]) =>
@@ -53,7 +54,8 @@ export const updateUser = async (url, data) => {
       method: "PUT",
       body: toFormData(data),
     });
-  } else await fetch(baseUrl + url, { method: "PUT", body: toFormData(data) });
+  } else
+    await superFetch(baseUrl + url, { method: "PUT", body: toFormData(data) });
 
   // fetchUserState();
 };
@@ -87,7 +89,7 @@ export const setTranscode = async (transcode) => {
   updateUser(useUserStore.getState().user.id, { transcode });
 };
 
-const debouncedEqFetch = _.debounce(fetch, 2000);
+const debouncedEqFetch = _.debounce(superFetch, 2000);
 
 export const setEq = async (eqNum, field, value) => {
   const stateField = `eq${eqNum}${field}`;
