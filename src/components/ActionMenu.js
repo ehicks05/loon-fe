@@ -208,14 +208,16 @@ export default function ActionMenu(props) {
       <div className="dropdown-menu" id="dropdown-menu2" role="menu">
         <div className="dropdown-content">
           <a
+            href="/"
             className="dropdown-item"
-            onClick={() =>
+            onClick={(e) => {
+              e.preventDefault();
               handleToggleTracksInPlaylist(
                 favoritesPlaylist.id,
                 trackIds,
                 isFavorite ? "remove" : "add"
-              )
-            }
+              );
+            }}
           >
             <p>
               <span className={"icon has-text-success"}>
@@ -225,14 +227,16 @@ export default function ActionMenu(props) {
             </p>
           </a>
           <a
+            href="/"
             className="dropdown-item"
-            onClick={() =>
+            onClick={(e) => {
+              e.preventDefault();
               handleToggleTracksInPlaylist(
                 queuePlaylist.id,
                 trackIds,
                 isQueued ? "remove" : "add"
-              )
-            }
+              );
+            }}
           >
             <p>
               <span
@@ -246,15 +250,17 @@ export default function ActionMenu(props) {
             </p>
           </a>
           <a
+            href="/"
             className="dropdown-item"
-            onClick={() =>
+            onClick={(e) => {
+              e.preventDefault();
               handleToggleTracksInPlaylist(
                 queuePlaylist.id,
                 trackIds,
                 "add",
                 true
-              )
-            }
+              );
+            }}
             disabled={equalsQueue}
           >
             <p>
