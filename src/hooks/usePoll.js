@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-
+import superFetch from "../common/SuperFetch";
 export default function usePoll(url, delay) {
   useEffect(() => {
     const doFetch = () => {
-      fetch(url)
+      superFetch(url)
         .then((response) => response.text())
         .then((text) => console.log("poll result: " + text));
     };
