@@ -61,6 +61,9 @@ const Player = () => {
       audio.onplaying = () => {
         renderSpectrumFrame();
       };
+      audio.onpause = (e) => {
+        console.log(e);
+      };
       audio.ontimeupdate = () => {
         setElapsedTime(audio.currentTime);
       };
@@ -181,7 +184,6 @@ const Player = () => {
         audio.current.currentSrc &&
         audioCtx.current.state === "suspended"
       ) {
-        console.log("resume1");
         audio.current.play();
         audioCtx.current.resume();
         return;
@@ -192,9 +194,7 @@ const Player = () => {
         newPlaybackState === "playing" &&
         audioCtx.current.state === "suspended"
       ) {
-        console.log("resume2");
         audioCtx.current.resume();
-
         initAudioSource();
       }
     };
