@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Router } from "react-router-dom";
-import { createBrowserHistory } from "history";
+import { BrowserRouter } from "react-router-dom";
 
 import Header from "./Header";
 import Player from "./components/app/Player/Player";
@@ -21,7 +20,6 @@ import PlaybackControls from "components/app/Player/PlaybackControls";
 import usePoll from "hooks/usePoll";
 
 export default function App() {
-  const [history] = useState(createBrowserHistory({ basename: "/" }));
   const [columnHeight, setColumnHeight] = useState("");
   const [userLoading, setUserLoading] = useState(true);
   const [libraryLoading, setLibraryLoading] = useState(true);
@@ -64,7 +62,7 @@ export default function App() {
   if (!(user && tracks && playlists)) return <PageLoader />;
 
   return (
-    <Router history={history}>
+    <BrowserRouter>
       <Title />
       <Header />
       <div className={"columns is-gapless"}>
@@ -94,6 +92,6 @@ export default function App() {
       </div>
       <Player />
       <PlaybackControls />
-    </Router>
+    </BrowserRouter>
   );
 }
