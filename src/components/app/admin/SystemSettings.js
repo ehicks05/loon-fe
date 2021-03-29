@@ -2,19 +2,20 @@ import React, { useEffect, useState } from "react";
 import TextInput from "../../TextInput";
 import Select from "../../Select";
 import superFetch from "../../../common/SuperFetch";
+import apiUrl from "../../../apiUrl";
 
 export default function SystemSettings() {
   const [settings, setSettings] = useState(null);
   const [taskState, setTaskState] = useState(null);
 
   useEffect(() => {
-    fetch("/admin/systemSettings", { method: "GET" })
+    superFetch("/admin/systemSettings", { method: "GET" })
       .then((response) => response.json())
       .then((data) => setSettings(data));
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource("/system-events", {
+    const eventSource = new EventSource(apiUrl + "/system-events", {
       withCredentials: true,
     });
     eventSource.addEventListener("taskStateUpdate", function (e) {
