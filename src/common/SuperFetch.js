@@ -1,5 +1,4 @@
-const apiUrl =
-  process.env.NODE_ENV === "production" ? process.env.REACT_APP_API_URL : "";
+import apiUrl from "../apiUrl";
 
 function superFetch(url, options) {
   return fetch(apiUrl + url, { ...options, credentials: "include" });

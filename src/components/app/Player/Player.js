@@ -8,6 +8,7 @@ import { scaleVolume, getMaxSafeGain, scrollIntoView } from "./playerUtils";
 import { usePlayerStore } from "../../../common/PlayerContextProvider";
 import { getNewTrackId } from "./trackDeterminationUtils";
 import renderSpectrumFrame from "./spectrum";
+import apiUrl from "../../../apiUrl";
 
 const Player = () => {
   const userState = useUserStore((state) => state.userState);
@@ -216,7 +217,7 @@ const Player = () => {
     // set new audio source
     if (audio.current) {
       audio.current.volume = 0;
-      audio.current.src = "/media?id=" + track.id;
+      audio.current.src = apiUrl + "/media?id=" + track.id;
 
       if (trackGainNode.current) {
         const gain = getMaxSafeGain(track.trackGainLinear, track.trackPeak);
