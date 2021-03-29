@@ -27,7 +27,7 @@ export const fetchUser = async () => {
 export const setUserState = (userState) => useUserStore.setState({ userState });
 export const fetchUserState = async () => {
   try {
-    const response = await superFetch(baseUrl + "/currentUserState");
+    const response = await superFetch(baseUrl + "currentUserState");
     useUserStore.setState({ userState: await response.json() });
   } catch (err) {
     console.log("unable to load userState");

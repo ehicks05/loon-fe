@@ -24,12 +24,12 @@ export const fetchTracks = async () => {
 };
 
 export const fetchPlaylists = async () => {
-  const response = await superFetch(playlistBaseUrl + "/getPlaylists");
+  const response = await superFetch(playlistBaseUrl + "getPlaylists");
   useAppStore.setState({ playlists: await response.json() });
 };
 
 export const upsertPlaylist = async (formData) => {
-  await superFetch(playlistBaseUrl + "/addOrModify", {
+  await superFetch(playlistBaseUrl + "addOrModify", {
     method: "POST",
     body: formData,
   });
