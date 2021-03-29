@@ -48,6 +48,7 @@ const Player = () => {
   useEffect(() => {
     function initAudio() {
       const audio = new Audio();
+      audio.crossOrigin = "use-credentials";
       audio.controls = false;
       audio.autoplay = false;
       audio.onended = () => {
