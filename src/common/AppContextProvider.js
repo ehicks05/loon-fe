@@ -25,7 +25,11 @@ export const fetchTracks = async () => {
 
 export const fetchPlaylists = async () => {
   const response = await superFetch(playlistBaseUrl + "getPlaylists");
-  useAppStore.setState({ playlists: await response.json() });
+  const json = await response.json();
+  const playlists = json.map((p) => {
+    return { ...p, playlistTracks: _.sortBy(p.playlistTracks, "index") };
+  });
+  useAppStore.setState({ playlists });
 };
 
 export const upsertPlaylist = async (formData) => {
@@ -88,10 +92,9 @@ export const dragAndDrop = async (formData) => {
   const newIndex = Number(formData.get("newIndex"));
   const playlistId = Number(formData.get("playlistId"));
 
-  const [playlist, playlists] = _.partition(
-    useAppStore.getState().playlists,
-    (p) => p.id === playlistId
-  );
+  const playlists = useAppStore.getState().playlists;
+  const playlist = playlists.find((p) => p.id === playlistId);
+  const rest = playlists.filter((p) => p.id !== playlistId);
 
   const tracks = [...playlist.playlistTracks];
   const track = tracks[oldIndex];
@@ -100,7 +103,7 @@ export const dragAndDrop = async (formData) => {
   tracks.forEach((track, i) => (track.index = i));
 
   playlist.playlistTracks = tracks;
-  useAppStore.setState({ ...playlists, playlist });
+  useAppStore.setState({ playlists: [...rest, playlist] });
 
   await superFetch(playlistBaseUrl + "dragAndDrop", {
     method: "POST",
